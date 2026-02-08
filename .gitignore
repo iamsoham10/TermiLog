@@ -1,8 +1,8 @@
 # dependencies (bun install)
 node_modules
 
+.agents/
 
-nul
 # output
 out
 dist
