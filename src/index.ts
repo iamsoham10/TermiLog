@@ -1,11 +1,4 @@
-import {
-  ASCIIFont,
-  Box,
-  createCliRenderer,
-  Text,
-  TextAttributes,
-  TextRenderable,
-} from "@opentui/core";
+import { createCliRenderer } from "@opentui/core";
 import { Router } from "./router";
 import { createHomePage } from "./pages/home";
 import { createJournalPage } from "./pages/journals";
@@ -25,8 +18,10 @@ renderer.root.add(journal.renderable);
 router.navigate("home");
 
 renderer.keyInput.on("keypress", (key) => {
-  const active = router.getActive();
-  if (active?.onKeypress?.(key)) return;
+  const activePage = router.getActivePage();
+  if (activePage?.onKeypress?.(key)) return;
 
   if (key.name === "j") router.navigate("journal");
+
+  if (key.name === "q") renderer.destroy();
 });

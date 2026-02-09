@@ -1,25 +1,16 @@
 import {
   ASCIIFont,
-  bold,
   Box,
   instantiate,
-  t,
   Text,
   TextAttributes,
-  type KeyEvent,
-  type Renderable,
   type RenderContext,
 } from "@opentui/core";
-
-export interface Page {
-  id: string;
-  renderable: Renderable;
-  onEnter?: () => void;
-  onLeave?: () => void;
-  onKeypress?: (key: KeyEvent) => boolean;
-}
+import type { Page } from "../types/page";
+import { footerComponent } from "../components/footer";
 
 export function createHomePage(renderer: RenderContext): Page {
+  const footer = footerComponent(renderer).renderable;
   const page = instantiate(
     renderer,
     Box(
@@ -42,6 +33,7 @@ export function createHomePage(renderer: RenderContext): Page {
           justifyContent: "center",
           alignItems: "center",
           gap: 2,
+          flexGrow: 1,
         },
         ASCIIFont({ id: "asciiTitle", font: "tiny", text: "TermiLog" }),
         Text({
@@ -50,6 +42,14 @@ export function createHomePage(renderer: RenderContext): Page {
           content: "Write your thoughts in 🐚!",
           attributes: TextAttributes.ITALIC,
         }),
+      ),
+      Box(
+        {
+          id: "footerComponent-container",
+          height: 3,
+          width: "100%",
+        },
+        footer,
       ),
     ),
   );

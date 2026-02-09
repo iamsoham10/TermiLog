@@ -5,9 +5,11 @@ import {
   TextAttributes,
   type RenderContext,
 } from "@opentui/core";
-import type { Page } from "./home";
+import type { Page } from "../types/page";
+import { footerComponent } from "../components/footer";
 
 export function createJournalPage(renderer: RenderContext): Page {
+  const footer = footerComponent(renderer).renderable;
   const page = instantiate(
     renderer,
     Box(
@@ -30,6 +32,7 @@ export function createJournalPage(renderer: RenderContext): Page {
           justifyContent: "center",
           alignItems: "center",
           gap: 2,
+          flexGrow: 1,
         },
         Text({
           justifyContent: "center",
@@ -37,6 +40,15 @@ export function createJournalPage(renderer: RenderContext): Page {
           content: "Write your thoughts in 🐚!",
           attributes: TextAttributes.ITALIC,
         }),
+      ),
+
+      Box(
+        {
+          id: "footerComponent-container",
+          height: 3,
+          width: "100%",
+        },
+        footer,
       ),
     ),
   );
