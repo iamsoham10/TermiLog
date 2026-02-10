@@ -7,9 +7,11 @@ import {
 } from "@opentui/core";
 import type { Page } from "../types/page";
 import { footerComponent } from "../components/footer";
+import { sidebarComponent } from "../components/sidebar";
 
 export function createJournalPage(renderer: RenderContext): Page {
   const footer = footerComponent(renderer).renderable;
+  const sidebar = sidebarComponent(renderer).renderable;
   const page = instantiate(
     renderer,
     Box(
@@ -17,7 +19,6 @@ export function createJournalPage(renderer: RenderContext): Page {
         id: "journal-containrer",
         width: "100%",
         height: "100%",
-        overflow: "hidden",
         alignItems: "center",
         justifyContent: "center",
         flexGrow: 1,
@@ -29,19 +30,30 @@ export function createJournalPage(renderer: RenderContext): Page {
       Box(
         {
           id: "title-container",
+          width: "100%",
           justifyContent: "center",
           alignItems: "center",
           gap: 2,
+          flexDirection: "row",
           flexGrow: 1,
         },
-        Text({
-          justifyContent: "center",
-          alignItems: "center",
-          content: "Write your thoughts in 🐚!",
-          attributes: TextAttributes.ITALIC,
-        }),
+        sidebar,
+        Box(
+          {
+            id: "main-content-container",
+            width: "100%",
+            flexGrow: 1,
+            alignItems: "center",
+            justifyContent: "center",
+          },
+          Text({
+            justifyContent: "center",
+            alignItems: "center",
+            content: "Write your thoughts in 🐚!",
+            attributes: TextAttributes.ITALIC,
+          }),
+        ),
       ),
-
       Box(
         {
           id: "footerComponent-container",
