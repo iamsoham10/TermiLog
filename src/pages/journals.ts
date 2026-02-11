@@ -26,6 +26,7 @@ export function createJournalPage(renderer: RenderContext): Page {
         borderColor: "#FFFFFF",
         borderStyle: "rounded",
         backgroundColor: "#262521",
+        padding: 0,
       },
       Box(
         {
@@ -36,6 +37,7 @@ export function createJournalPage(renderer: RenderContext): Page {
           gap: 2,
           flexDirection: "row",
           flexGrow: 1,
+          margin: 0,
         },
         sidebar,
         Box(
@@ -57,7 +59,7 @@ export function createJournalPage(renderer: RenderContext): Page {
       Box(
         {
           id: "footerComponent-container",
-          height: 3,
+          height: 1,
           width: "100%",
         },
         footer,

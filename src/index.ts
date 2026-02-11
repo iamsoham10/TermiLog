@@ -1,9 +1,24 @@
-import { createCliRenderer } from "@opentui/core";
+import {
+  ConsolePosition,
+  createCliRenderer,
+  DebugOverlayCorner,
+} from "@opentui/core";
 import { Router } from "./router";
 import { createHomePage } from "./pages/home";
 import { createJournalPage } from "./pages/journals";
 
-const renderer = await createCliRenderer({ exitOnCtrlC: true });
+const renderer = await createCliRenderer({
+  exitOnCtrlC: true,
+  consoleOptions: {
+    startInDebugMode: true,
+    position: ConsolePosition.BOTTOM,
+    sizePercent: 30,
+  },
+});
+renderer.debugOverlay = {
+  enabled: true,
+  corner: DebugOverlayCorner.topRight,
+};
 const router = new Router();
 
 const home = createHomePage(renderer);
@@ -25,3 +40,23 @@ renderer.keyInput.on("keypress", (key) => {
 
   if (key.name === "q") renderer.destroy();
 });
+
+renderer.useConsole = true;
+renderer.console.show();
+
+console.log("This appears in the overlay");
+console.error("Errors are color-coded red");
+console.warn("Warnings appear in yellow");
+
+renderer.keyInput.on("keypress", (key) => {
+  // Toggle with backtick key
+  if (key.name === "/") {
+    renderer.console.toggle();
+  }
+});
+process.stdout.on("resize", () => {
+  console.log(`Now: ${renderer.width}x${renderer.height}`);
+  renderer.requestRender();
+});
+
+renderer.on("error", () => renderer.console.show());

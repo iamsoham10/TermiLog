@@ -46,7 +46,7 @@ export function createHomePage(renderer: RenderContext): Page {
       Box(
         {
           id: "footerComponent-container",
-          height: 3,
+          height: 1,
           width: "100%",
         },
         footer,
