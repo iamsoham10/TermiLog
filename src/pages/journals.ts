@@ -1,8 +1,9 @@
 import {
   Box,
   instantiate,
-  Text,
-  TextAttributes,
+  parseColor,
+  ScrollBox,
+  TextareaRenderable,
   type RenderContext,
 } from "@opentui/core";
 import type { Page } from "../types/page";
@@ -12,6 +13,23 @@ import { sidebarComponent } from "../components/sidebar";
 export function createJournalPage(renderer: RenderContext): Page {
   const footer = footerComponent(renderer).renderable;
   const sidebar = sidebarComponent(renderer).renderable;
+
+  const scrollBox = ScrollBox({
+    width: "100%",
+    height: "100%",
+  });
+
+  const textEditor = new TextareaRenderable(renderer, {
+    id: "editor",
+    width: "100%",
+    height: 40,
+    placeholder: "How was your day?...",
+    backgroundColor: "#4C5E7D",
+    cursorColor: "#00FF88",
+  });
+
+  scrollBox.add(textEditor);
+
   const page = instantiate(
     renderer,
     Box(
@@ -26,7 +44,7 @@ export function createJournalPage(renderer: RenderContext): Page {
         borderColor: "#FFFFFF",
         borderStyle: "rounded",
         backgroundColor: "#262521",
-        padding: 0,
+        padding: 1,
       },
       Box(
         {
@@ -43,17 +61,16 @@ export function createJournalPage(renderer: RenderContext): Page {
         Box(
           {
             id: "main-content-container",
+            title: "Editor",
             width: "100%",
+            height: "100%",
             flexGrow: 1,
-            alignItems: "center",
-            justifyContent: "center",
+            alignItems: "flex-start",
+            justifyContent: "flex-start",
+            padding: 3,
+            border: true,
           },
-          Text({
-            justifyContent: "center",
-            alignItems: "center",
-            content: "Write your thoughts in 🐚!",
-            attributes: TextAttributes.ITALIC,
-          }),
+          scrollBox,
         ),
       ),
       Box(
@@ -66,6 +83,8 @@ export function createJournalPage(renderer: RenderContext): Page {
       ),
     ),
   );
+
+  textEditor.focus();
 
   function toggleSidebar() {
     sidebar.visible = !sidebar.visible;
