@@ -15,6 +15,7 @@ const renderer = await createCliRenderer({
     sizePercent: 30,
   },
 });
+
 renderer.debugOverlay = {
   enabled: true,
   corner: DebugOverlayCorner.topRight,
@@ -41,9 +42,6 @@ renderer.keyInput.on("keypress", (key) => {
   if (key.name === "q") renderer.destroy();
 });
 
-renderer.useConsole = true;
-renderer.console.show();
-
 console.log("This appears in the overlay");
 console.error("Errors are color-coded red");
 console.warn("Warnings appear in yellow");
@@ -54,9 +52,3 @@ renderer.keyInput.on("keypress", (key) => {
     renderer.console.toggle();
   }
 });
-process.stdout.on("resize", () => {
-  console.log(`Now: ${renderer.width}x${renderer.height}`);
-  renderer.requestRender();
-});
-
-renderer.on("error", () => renderer.console.show());

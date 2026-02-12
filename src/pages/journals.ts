@@ -67,6 +67,16 @@ export function createJournalPage(renderer: RenderContext): Page {
     ),
   );
 
+  function toggleSidebar() {
+    sidebar.visible = !sidebar.visible;
+  }
+
+  renderer.keyInput.on("keypress", (key) => {
+    if (key.ctrl && key.name === "b") {
+      toggleSidebar();
+    }
+  });
+
   return {
     id: "journal",
     renderable: page,
