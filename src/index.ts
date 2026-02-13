@@ -38,8 +38,8 @@ renderer.keyInput.on("keypress", (key) => {
   if (activePage?.onKeypress?.(key)) return;
 
   if (key.name === "j") router.navigate("journal");
-
-  if (key.name === "q") renderer.destroy();
+  const focused = renderer.root.focused;
+  if (key.name === "q" && !focused == false) renderer.destroy();
 });
 
 console.log("This appears in the overlay");
