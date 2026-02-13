@@ -9,26 +9,19 @@ import {
 import type { Page } from "../types/page";
 import { footerComponent } from "../components/footer";
 import { sidebarComponent } from "../components/sidebar";
+import { editorComponent } from "../components/editor";
 
 export function createJournalPage(renderer: RenderContext): Page {
   const footer = footerComponent(renderer).renderable;
   const sidebar = sidebarComponent(renderer).renderable;
+  const editor = editorComponent(renderer);
 
   const scrollBox = ScrollBox({
     width: "100%",
     height: "100%",
   });
 
-  const textEditor = new TextareaRenderable(renderer, {
-    id: "editor",
-    width: "100%",
-    height: 40,
-    placeholder: "How was your day?...",
-    backgroundColor: "#4C5E7D",
-    cursorColor: "#00FF88",
-  });
-
-  scrollBox.add(textEditor);
+  scrollBox.add(editor);
 
   const page = instantiate(
     renderer,
@@ -37,25 +30,15 @@ export function createJournalPage(renderer: RenderContext): Page {
         id: "journal-containrer",
         width: "100%",
         height: "100%",
-        alignItems: "center",
-        justifyContent: "center",
         flexGrow: 1,
-        border: true,
-        borderColor: "#FFFFFF",
-        borderStyle: "rounded",
         backgroundColor: "#262521",
-        padding: 1,
+        flexDirection: "column",
       },
       Box(
         {
           id: "title-container",
           width: "100%",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: 2,
           flexDirection: "row",
-          flexGrow: 1,
-          margin: 0,
         },
         sidebar,
         Box(
@@ -84,7 +67,7 @@ export function createJournalPage(renderer: RenderContext): Page {
     ),
   );
 
-  textEditor.focus();
+  editor.focus();
 
   function toggleSidebar() {
     sidebar.visible = !sidebar.visible;

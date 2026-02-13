@@ -16,10 +16,10 @@ const renderer = await createCliRenderer({
   },
 });
 
-renderer.debugOverlay = {
-  enabled: true,
-  corner: DebugOverlayCorner.topRight,
-};
+// renderer.debugOverlay = {
+//   enabled: true,
+//   corner: DebugOverlayCorner.topRight,
+// };
 const router = new Router();
 
 const home = createHomePage(renderer);

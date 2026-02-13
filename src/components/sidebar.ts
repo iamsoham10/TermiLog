@@ -18,10 +18,8 @@ export function sidebarComponent(renderer: RenderContext): Page {
       borderColor: "#524F4F",
       height: "100%",
       width: 30,
-      flexGrow: 1,
       flexDirection: "column",
       justifyContent: "flex-start",
-      alignItems: "center",
     }),
   );
   renderer.on("resize", () => {

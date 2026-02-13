@@ -19,8 +19,6 @@ export function createHomePage(renderer: RenderContext): Page {
         width: "100%",
         height: "100%",
         overflow: "hidden",
-        alignItems: "center",
-        justifyContent: "center",
         flexGrow: 1,
         border: true,
         borderColor: "#FFFFFF",
