@@ -1,11 +1,4 @@
-import {
-  Box,
-  instantiate,
-  parseColor,
-  ScrollBox,
-  TextareaRenderable,
-  type RenderContext,
-} from "@opentui/core";
+import { Box, instantiate, type RenderContext } from "@opentui/core";
 import type { Page } from "../types/page";
 import { footerComponent } from "../components/footer";
 import { sidebarComponent } from "../components/sidebar";
@@ -15,13 +8,7 @@ export function createJournalPage(renderer: RenderContext): Page {
   const footer = footerComponent(renderer).renderable;
   const sidebar = sidebarComponent(renderer).renderable;
   const editor = editorComponent(renderer);
-
-  const scrollBox = ScrollBox({
-    width: "100%",
-    height: "100%",
-  });
-
-  scrollBox.add(editor);
+  const editorRenderable = editor.renderable;
 
   const page = instantiate(
     renderer,
@@ -53,7 +40,7 @@ export function createJournalPage(renderer: RenderContext): Page {
             padding: 3,
             border: true,
           },
-          scrollBox,
+          editorRenderable,
         ),
       ),
       Box(
@@ -67,22 +54,24 @@ export function createJournalPage(renderer: RenderContext): Page {
     ),
   );
 
-  editor.focus();
+  // editorRenderable.focus();
 
   function toggleSidebar() {
     sidebar.visible = !sidebar.visible;
   }
-
-  renderer.keyInput.on("keypress", (key) => {
-    if (key.ctrl && key.name === "b") {
-      toggleSidebar();
-    }
-  });
 
   return {
     id: "journal",
     renderable: page,
     onEnter() {},
     onLeave() {},
+    onKeypress: (key) => {
+      if (editor?.onKeypress?.(key)) return true;
+      if (key.ctrl && key.name === "b") {
+        toggleSidebar();
+        return true;
+      }
+      return false;
+    },
   };
 }

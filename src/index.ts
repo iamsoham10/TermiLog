@@ -1,7 +1,7 @@
 import {
   ConsolePosition,
   createCliRenderer,
-  DebugOverlayCorner,
+  // DebugOverlayCorner,
 } from "@opentui/core";
 import { Router } from "./router";
 import { createHomePage } from "./pages/home";
@@ -14,6 +14,7 @@ const renderer = await createCliRenderer({
     position: ConsolePosition.BOTTOM,
     sizePercent: 30,
   },
+  useMouse: true,
 });
 
 // renderer.debugOverlay = {
@@ -39,7 +40,7 @@ renderer.keyInput.on("keypress", (key) => {
 
   if (key.name === "j") router.navigate("journal");
   const focused = renderer.root.focused;
-  if (key.name === "q" && !focused == false) renderer.destroy();
+  if (key.name === "q" && !focused) renderer.destroy();
 });
 
 console.log("This appears in the overlay");
