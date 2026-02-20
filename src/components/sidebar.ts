@@ -22,12 +22,6 @@ export function sidebarComponent(renderer: RenderContext): Page {
       justifyContent: "flex-start",
     }),
   );
-  renderer.on("resize", () => {
-    (console.log(`Now: ${renderer.width}x${renderer.height}`),
-      (sidebar.flexDirection = renderer.width > 100 ? "row" : "column"),
-      (sidebar.width = renderer.width > 150 ? 30 : 5));
-    renderer.requestRender();
-  });
   return {
     id: "sidebar",
     renderable: sidebar,
