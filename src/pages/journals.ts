@@ -5,7 +5,7 @@ import { sidebarComponent } from "../components/sidebar";
 import { editorComponent } from "../components/editor";
 
 export function createJournalPage(renderer: RenderContext): Page {
-  const footer = footerComponent(renderer).renderable;
+  const footer = footerComponent();
   const sidebar = sidebarComponent(renderer).renderable;
   const editor = editorComponent(renderer);
   const editorRenderable = editor.renderable;
@@ -55,7 +55,6 @@ export function createJournalPage(renderer: RenderContext): Page {
   );
 
   // editorRenderable.focus();
-
   function toggleSidebar() {
     sidebar.visible = !sidebar.visible;
   }

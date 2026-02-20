@@ -1,7 +1,6 @@
-import { Box, Text, instantiate, type RenderContext } from "@opentui/core";
-import type { Component } from "../types/component.ts";
+import { Box, Text } from "@opentui/core";
 
-export function footerComponent(renderer: RenderContext): Component {
+export function footerComponent() {
   const footer = Box(
     {
       id: "footer",

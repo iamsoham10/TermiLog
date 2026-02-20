@@ -1,13 +1,6 @@
-import {
-  Box,
-  instantiate,
-  Text,
-  TextAttributes,
-  type RenderContext,
-} from "@opentui/core";
-import type { Page } from "../types/page";
+import { Box, instantiate, type RenderContext } from "@opentui/core";
 
-export function sidebarComponent(renderer: RenderContext): Page {
+export function sidebarComponent(renderer: RenderContext) {
   const sidebar = instantiate(
     renderer,
     Box({
