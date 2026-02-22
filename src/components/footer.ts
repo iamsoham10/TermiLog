@@ -1,7 +1,7 @@
 import { Box, Text } from "@opentui/core";
 
 export function footerComponent() {
-  const footer = Box(
+  return Box(
     {
       id: "footer",
       width: "100%",
@@ -21,9 +21,4 @@ export function footerComponent() {
       fg: "#00FF00",
     }),
   );
-
-  return {
-    id: "footer",
-    renderable: footer,
-  };
 }

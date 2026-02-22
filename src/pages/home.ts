@@ -10,7 +10,7 @@ import type { Page } from "../types/page";
 import { footerComponent } from "../components/footer";
 
 export function createHomePage(renderer: RenderContext): Page {
-  const footer = footerComponent(renderer).renderable;
+  const footer = footerComponent();
   const page = instantiate(
     renderer,
     Box(
