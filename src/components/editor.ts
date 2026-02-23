@@ -20,7 +20,6 @@ export function editorComponent(renderer: RenderContext): Page {
       }
       if (textEditor.focused) {
         if (key.name == "escape") {
-          console.log("esc called");
           textEditor.blur();
         }
         return true;

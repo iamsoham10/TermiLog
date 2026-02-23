@@ -7,7 +7,7 @@ export function footerComponent() {
       width: "100%",
       alignItems: "center",
       justifyContent: "center",
-      flexGrow: 1,
+      // flexGrow: 1,
       flexDirection: "row",
       gap: 2,
       // backgroundColor: "#296DCC",

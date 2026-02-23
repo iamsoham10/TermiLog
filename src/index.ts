@@ -43,10 +43,6 @@ renderer.keyInput.on("keypress", (key) => {
   if (key.name === "q" && !focused) renderer.destroy();
 });
 
-console.log("This appears in the overlay");
-console.error("Errors are color-coded red");
-console.warn("Warnings appear in yellow");
-
 renderer.keyInput.on("keypress", (key) => {
   // Toggle with backtick key
   if (key.name === "/") {
