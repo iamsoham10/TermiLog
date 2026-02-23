@@ -1,58 +1,37 @@
 import { Box, instantiate, type RenderContext } from "@opentui/core";
 import type { Page } from "../types/page";
-import { footerComponent } from "../components/footer";
 import { sidebarComponent } from "../components/sidebar";
 import { editorComponent } from "../components/editor";
+import { BaseLayout } from "../components/layout";
 
 export function createJournalPage(renderer: RenderContext): Page {
-  const footer = footerComponent();
   const sidebar = sidebarComponent(renderer).renderable;
   const editor = editorComponent(renderer);
   const editorRenderable = editor.renderable;
 
-  const page = instantiate(
-    renderer,
+  const content = Box(
+    {
+      id: "title-container",
+      width: "100%",
+      flexDirection: "row",
+    },
+    sidebar,
     Box(
       {
-        id: "journal-containrer",
+        id: "main-content-container",
+        title: "Editor",
         width: "100%",
         height: "100%",
         flexGrow: 1,
-        backgroundColor: "#262521",
-        flexDirection: "column",
+        alignItems: "flex-start",
+        justifyContent: "flex-start",
+        padding: 3,
+        border: true,
       },
-      Box(
-        {
-          id: "title-container",
-          width: "100%",
-          flexDirection: "row",
-        },
-        sidebar,
-        Box(
-          {
-            id: "main-content-container",
-            title: "Editor",
-            width: "100%",
-            height: "100%",
-            flexGrow: 1,
-            alignItems: "flex-start",
-            justifyContent: "flex-start",
-            padding: 3,
-            border: true,
-          },
-          editorRenderable,
-        ),
-      ),
-      Box(
-        {
-          id: "footerComponent-container",
-          height: 1,
-          width: "100%",
-        },
-        footer,
-      ),
+      editorRenderable,
     ),
   );
+  const page = instantiate(renderer, BaseLayout(content, { border: false }));
 
   // editorRenderable.focus();
   function toggleSidebar() {
