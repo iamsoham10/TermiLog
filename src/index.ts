@@ -37,15 +37,10 @@ router.navigate("home");
 renderer.keyInput.on("keypress", (key) => {
   const activePage = router.getActivePage();
   if (activePage?.onKeypress?.(key)) return;
-
-  if (key.name === "j") router.navigate("journal");
-  const focused = renderer.root.focused;
-  if (key.name === "q" && !focused) renderer.destroy();
-});
-
-renderer.keyInput.on("keypress", (key) => {
-  // Toggle with backtick key
   if (key.name === "/") {
     renderer.console.toggle();
   }
+  if (key.name === "j") router.navigate("journal");
+  const focused = renderer.root.focused;
+  if (key.name === "q" && !focused) renderer.destroy();
 });
