@@ -21,6 +21,7 @@ export function editorComponent(renderer: RenderContext): Page {
       if (textEditor.focused) {
         if (key.name == "escape") {
           textEditor.blur();
+          return true;
         }
         return true;
       }

@@ -17,6 +17,10 @@ export function footerComponent() {
       fg: "#00FF00",
     }),
     Text({
+      content: "[H] Home",
+      fg: "#00FF00",
+    }),
+    Text({
       content: "[Q] Quit",
       fg: "#00FF00",
     }),

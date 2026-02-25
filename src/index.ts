@@ -40,6 +40,7 @@ renderer.keyInput.on("keypress", (key) => {
   if (key.name === "/") {
     renderer.console.toggle();
   }
+  if (key.name === "h") router.navigate("home");
   if (key.name === "j") router.navigate("journal");
   const focused = renderer.root.focused;
   if (key.name === "q" && !focused) renderer.destroy();
