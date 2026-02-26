@@ -23,14 +23,22 @@ const renderer = await createCliRenderer({
 // };
 const router = new Router();
 
-const home = createHomePage(renderer);
-const journal = createJournalPage(renderer);
+const pageList = [{ create: createHomePage }, { create: createJournalPage }];
 
-router.register(home);
-router.register(journal);
+// const home = createHomePage(renderer);
+// const journal = createJournalPage(renderer);
 
-renderer.root.add(home.renderable);
-renderer.root.add(journal.renderable);
+// router.register(home);
+// router.register(journal);
+
+// renderer.root.add(home.renderable);
+// renderer.root.add(journal.renderable);
+
+for (const pages of pageList) {
+  const page = pages.create(renderer);
+  router.register(page);
+  renderer.root.add(page.renderable);
+}
 
 router.navigate("home");
 
