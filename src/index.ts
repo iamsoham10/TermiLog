@@ -25,15 +25,6 @@ const router = new Router();
 
 const pageList = [{ create: createHomePage }, { create: createJournalPage }];
 
-// const home = createHomePage(renderer);
-// const journal = createJournalPage(renderer);
-
-// router.register(home);
-// router.register(journal);
-
-// renderer.root.add(home.renderable);
-// renderer.root.add(journal.renderable);
-
 for (const pages of pageList) {
   const page = pages.create(renderer);
   router.register(page);

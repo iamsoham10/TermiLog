@@ -8,6 +8,12 @@ export function editorComponent(renderer: RenderContext): Page {
     height: "100%",
     placeholder: "How was your day?...",
     cursorColor: "#00FF88",
+    keyBindings: [
+      {
+        keys: ["ctrl+s"],
+        action: "submit",
+      },
+    ],
   });
 
   return {
@@ -25,6 +31,9 @@ export function editorComponent(renderer: RenderContext): Page {
         }
         return true;
       }
+      // if (key.ctrl && key.name == "s") {
+      //   console.log(textEditor.plainText);
+      // }
     },
   };
 }
