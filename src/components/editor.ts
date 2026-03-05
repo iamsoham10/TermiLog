@@ -1,5 +1,8 @@
 import { TextareaRenderable, type RenderContext } from "@opentui/core";
 import type { Page } from "../types/page";
+import { join } from "node:path";
+import { homedir } from "node:os";
+import { writeFile } from "node:fs/promises";
 
 export function editorComponent(renderer: RenderContext): Page {
   const textEditor = new TextareaRenderable(renderer, {
@@ -10,12 +13,26 @@ export function editorComponent(renderer: RenderContext): Page {
     cursorColor: "#00FF88",
     keyBindings: [
       {
-        keys: ["ctrl+s"],
+        name: "s",
+        ctrl: true,
         action: "submit",
       },
     ],
+    onSubmit: () => {
+      console.log(textEditor.plainText);
+      saveJournalFile();
+    },
   });
 
+  const saveJournalFile = async () => {
+    try {
+      const journalContent = textEditor.plainText;
+      const filePath = join(homedir(), "journal.txt");
+      await writeFile(filePath, journalContent, "utf-8");
+    } catch (err) {
+      console.error("Failed to save: ", err);
+    }
+  };
   return {
     id: "editor",
     renderable: textEditor,
@@ -31,9 +48,12 @@ export function editorComponent(renderer: RenderContext): Page {
         }
         return true;
       }
-      // if (key.ctrl && key.name == "s") {
-      //   console.log(textEditor.plainText);
-      // }
     },
   };
 }
+
+/*
+  select the home directory and create a new directory for the termilog files to be stored
+  before saving the file check if the directory exists, if not create it
+  save the contents from the text area in the file. for now we are working on plain text (txt) format
+*/
