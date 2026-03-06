@@ -27,8 +27,18 @@ export function editorComponent(renderer: RenderContext): Page {
   const saveJournalFile = async () => {
     try {
       const journalContent = textEditor.plainText;
-      const filePath = join(homedir(), "journal.txt");
-      await writeFile(filePath, journalContent, "utf-8");
+      const TERMILOG_DIR = join(homedir(), ".termilog");
+      const filePath = join(TERMILOG_DIR, "journal2.md");
+      const date = new Date().toISOString();
+      const journalName = "Mindful Sufffering";
+      const mood = "happy";
+      const markdownFormatMetadata =
+        `Date: ${date}\n` +
+        `Title: ${journalName}\n` +
+        `Mood: ${mood}\n` +
+        `\n\n`;
+      const finalJournalContents = markdownFormatMetadata + journalContent;
+      await writeFile(filePath, finalJournalContents, "utf-8");
     } catch (err) {
       console.error("Failed to save: ", err);
     }
