@@ -7,22 +7,21 @@ export function footerComponent() {
       width: "100%",
       alignItems: "center",
       justifyContent: "center",
-      // flexGrow: 1,
       flexDirection: "row",
       gap: 2,
-      // backgroundColor: "#296DCC",
+      backgroundColor: "#1a1a1a",
     },
     Text({
       content: "[J] Journal",
-      fg: "#00FF00",
+      fg: "#999999",
     }),
     Text({
       content: "[H] Home",
-      fg: "#00FF00",
+      fg: "#999999",
     }),
     Text({
       content: "[Q] Quit",
-      fg: "#00FF00",
+      fg: "#999999",
     }),
   );
 }

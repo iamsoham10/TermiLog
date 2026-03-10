@@ -17,6 +17,7 @@ export function createHomePage(renderer: RenderContext): Page {
       alignItems: "center",
       gap: 2,
       flexGrow: 1,
+      backgroundColor: "#1a1a1a",
     },
     ASCIIFont({ id: "asciiTitle", font: "tiny", text: "TermiLog" }),
     Text({

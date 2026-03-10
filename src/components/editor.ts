@@ -12,17 +12,18 @@ export function editorComponent(renderer: RenderContext): Page {
     height: "100%",
     placeholder: "How was your day?...",
     cursorColor: "#00FF88",
-    keyBindings: [
-      {
-        name: "s",
-        ctrl: true,
-        action: "submit",
-      },
-    ],
-    onSubmit: () => {
-      console.log(textEditor.plainText);
-      saveJournalFile();
-    },
+    textColor: "#e6e6e6",
+    // keyBindings: [
+    //   {
+    //     name: "s",
+    //     ctrl: true,
+    //     action: "submit",
+    //   },
+    // ],
+    // onSubmit: () => {
+    //   console.log(textEditor.plainText);
+    //   saveJournalFile();
+    // },
   });
 
   const TERMILOG_DIR = join(homedir(), ".termilog");
