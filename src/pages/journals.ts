@@ -9,8 +9,8 @@ export function createJournalPage(renderer: RenderContext): Page {
   const sidebar = sidebarComponent(renderer).renderable;
   const editor = editorComponent(renderer);
   const editorRenderable = editor.renderable;
-  const fileSaverDialog = journalSaveDialogComponent(renderer).renderable;
-  fileSaverDialog.visible = false;
+  const fileSaverDialog = journalSaveDialogComponent(renderer);
+  fileSaverDialog.renderable.visible = false;
 
   const content = Box(
     {
@@ -37,7 +37,7 @@ export function createJournalPage(renderer: RenderContext): Page {
       },
       editorRenderable,
     ),
-    fileSaverDialog,
+    fileSaverDialog.renderable,
   );
   const page = instantiate(renderer, BaseLayout(content, { border: false }));
 
@@ -52,12 +52,12 @@ export function createJournalPage(renderer: RenderContext): Page {
     onEnter() {},
     onLeave() {},
     onKeypress: (key) => {
+      if (editor?.onKeypress?.(key)) return true;
       if (key.ctrl && key.name === "s") {
-        console.log("called");
-        fileSaverDialog.visible = true;
+        fileSaverDialog.renderable.visible = true;
+        fileSaverDialog.focusInput();
         return true;
       }
-      if (editor?.onKeypress?.(key)) return true;
       if (key.ctrl && key.name === "b") {
         toggleSidebar();
         return true;

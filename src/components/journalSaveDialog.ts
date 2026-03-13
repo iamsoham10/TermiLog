@@ -1,12 +1,21 @@
 import {
   Box,
-  Input,
+  InputRenderable,
   instantiate,
   Text,
   type RenderContext,
 } from "@opentui/core";
 
-export function journalSaveDialogComponent(renderer: RenderContext) {
+export function journalSaveDialogComponent(
+  renderer: RenderContext,
+  journalName: string,
+) {
+  const journalNameInput = new InputRenderable(renderer, {
+    textColor: "#FFFFFF",
+    placeholder: `${journalName}`,
+    overflow: "hidden",
+  });
+
   const saveDialog = instantiate(
     renderer,
     Box(
@@ -52,14 +61,13 @@ export function journalSaveDialogComponent(renderer: RenderContext) {
           border: true,
           borderStyle: "single",
         },
-        Input({
-          textColor: "#FFFFFF",
-        }),
+        journalNameInput,
       ),
     ),
   );
   return {
     id: "save journal dialog",
     renderable: saveDialog,
+    focusInput: () => queueMicrotask(() => journalNameInput.focus()),
   };
 }
