@@ -1,6 +1,7 @@
 import {
   Box,
   InputRenderable,
+  InputRenderableEvents,
   instantiate,
   Text,
   type RenderContext,
@@ -8,12 +9,20 @@ import {
 
 export function journalSaveDialogComponent(
   renderer: RenderContext,
-  journalName: string,
+  callback: {
+    onSave: (journalName: string) => void;
+  },
 ) {
   const journalNameInput = new InputRenderable(renderer, {
     textColor: "#FFFFFF",
-    placeholder: `${journalName}`,
+    placeholder: "journal name...",
     overflow: "hidden",
+    marginLeft: 1,
+  });
+
+  journalNameInput.on(InputRenderableEvents.ENTER, (journalName) => {
+    if (!journalName || journalName.trim() === "") return;
+    callback.onSave(journalName);
   });
 
   const saveDialog = instantiate(
@@ -22,9 +31,7 @@ export function journalSaveDialogComponent(
       {
         position: "absolute",
         width: "40%",
-        height: "30%",
-        // justifyContent: "center",
-        // alignItems: "center",
+        height: "auto",
         flexDirection: "column",
         zIndex: 1000,
         backgroundColor: "#202020",
@@ -39,7 +46,6 @@ export function journalSaveDialogComponent(
         {
           justifyContent: "center",
           alignItems: "center",
-          // backgroundColor: "#F5F527",
         },
         Text({
           content: "Save Journal",
@@ -49,7 +55,6 @@ export function journalSaveDialogComponent(
         {
           marginTop: 2,
           justifyContent: "flex-start",
-          // backgroundColor: "#27C2F2",
         },
         Text({
           content: "Enter name for the journal:",
@@ -63,11 +68,49 @@ export function journalSaveDialogComponent(
         },
         journalNameInput,
       ),
+      Box(
+        {
+          marginTop: 2,
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "row",
+          gap: 4,
+        },
+        Box(
+          {
+            flexDirection: "row",
+            gap: 1,
+          },
+          Text({
+            content: "enter",
+            fg: "#FFFFFF",
+          }),
+          Text({
+            content: "Save",
+            fg: "#6E6E6E",
+          }),
+        ),
+        Box(
+          {
+            flexDirection: "row",
+            gap: 1,
+          },
+          Text({
+            content: "esc",
+            fg: "#FFFFFF",
+          }),
+          Text({
+            content: "Close",
+            fg: "#6E6E6E",
+          }),
+        ),
+      ),
     ),
   );
   return {
     id: "save journal dialog",
     renderable: saveDialog,
-    focusInput: () => queueMicrotask(() => journalNameInput.focus()),
+    focusInput: () => journalNameInput.focus(),
+    blurInput: () => journalNameInput.blur(),
   };
 }

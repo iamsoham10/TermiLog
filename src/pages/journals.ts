@@ -9,7 +9,16 @@ export function createJournalPage(renderer: RenderContext): Page {
   const sidebar = sidebarComponent(renderer).renderable;
   const editor = editorComponent(renderer);
   const editorRenderable = editor.renderable;
-  const fileSaverDialog = journalSaveDialogComponent(renderer);
+  const fileSaverDialog = journalSaveDialogComponent(renderer, {
+    onSave: (journalName) => {
+      console.log(`Saving journal ${journalName}`);
+      closeDialog();
+    },
+  });
+  function closeDialog() {
+    fileSaverDialog.renderable.visible = false;
+    fileSaverDialog.blurInput();
+  }
   fileSaverDialog.renderable.visible = false;
 
   const content = Box(
@@ -52,6 +61,14 @@ export function createJournalPage(renderer: RenderContext): Page {
     onEnter() {},
     onLeave() {},
     onKeypress: (key) => {
+      // when the dialog is visible
+      if (fileSaverDialog.renderable.visible) {
+        if (key.name === "escape") {
+          closeDialog();
+          return true;
+        }
+        return true;
+      }
       if (editor?.onKeypress?.(key)) return true;
       if (key.ctrl && key.name === "s") {
         fileSaverDialog.renderable.visible = true;
