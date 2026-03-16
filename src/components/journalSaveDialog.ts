@@ -21,7 +21,11 @@ export function journalSaveDialogComponent(
   });
 
   journalNameInput.on(InputRenderableEvents.ENTER, (journalName) => {
-    if (!journalName || journalName.trim() === "") return;
+    if (!journalName || journalName.trim() === "") {
+      journalNameInput.placeholder = "required...";
+      journalNameInput.placeholderColor = "#F54927";
+      return;
+    }
     callback.onSave(journalName);
   });
 
@@ -112,5 +116,10 @@ export function journalSaveDialogComponent(
     renderable: saveDialog,
     focusInput: () => journalNameInput.focus(),
     blurInput: () => journalNameInput.blur(),
+    resetInput: () => {
+      journalNameInput.value = "";
+      journalNameInput.placeholder = "journal name...";
+      journalNameInput.placeholderColor = "#6E6E6E";
+    },
   };
 }

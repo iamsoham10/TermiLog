@@ -18,6 +18,7 @@ export function createJournalPage(renderer: RenderContext): Page {
   function closeDialog() {
     fileSaverDialog.renderable.visible = false;
     fileSaverDialog.blurInput();
+    fileSaverDialog.resetInput();
   }
   fileSaverDialog.renderable.visible = false;
 
