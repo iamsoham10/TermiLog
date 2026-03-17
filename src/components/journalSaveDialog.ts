@@ -29,6 +29,31 @@ export function journalSaveDialogComponent(
     callback.onSave(journalName);
   });
 
+  // const moods = [
+  //   {
+  //     name: "Happy",
+  //     emoji: "😊",
+  //   },
+  //   {
+  //     name: "Good",
+  //     emoji: "🙂",
+  //   },
+  //   {
+  //     name: "Neutral",
+  //     emoji: "😐",
+  //   },
+  //   {
+  //     name: "Sad",
+  //     emoji: "😔",
+  //   },
+  //   {
+  //     name: "Angry",
+  //     emoji: "😡",
+  //   },
+  // ];
+
+  // const currentMoods = moods.map((mood) => mood.name + mood.emoji + "\n");
+
   const saveDialog = instantiate(
     renderer,
     Box(
@@ -72,6 +97,18 @@ export function journalSaveDialogComponent(
         },
         journalNameInput,
       ),
+      // Box(
+      //   {
+      //     marginTop: 1,
+      //     justifyContent: "flex-start",
+      //     flexDirection: "column",
+      //     gap: 1,
+      //   },
+      //   Text({
+      //     content: `${currentMoods}`,
+      //     flexDirection: "column",
+      //   }),
+      // ),
       Box(
         {
           marginTop: 2,
@@ -114,6 +151,7 @@ export function journalSaveDialogComponent(
   return {
     id: "save journal dialog",
     renderable: saveDialog,
+    getInputContent: () => journalNameInput.plainText,
     focusInput: () => journalNameInput.focus(),
     blurInput: () => journalNameInput.blur(),
     resetInput: () => {

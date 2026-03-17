@@ -1,7 +1,10 @@
-import { TextareaRenderable, type RenderContext } from "@opentui/core";
-import type { Page } from "../types/page";
+import {
+  KeyEvent,
+  TextareaRenderable,
+  type RenderContext,
+} from "@opentui/core";
 
-export function editorComponent(renderer: RenderContext): Page {
+export function editorComponent(renderer: RenderContext) {
   const textEditor = new TextareaRenderable(renderer, {
     id: "editor-container",
     width: "100%",
@@ -14,7 +17,7 @@ export function editorComponent(renderer: RenderContext): Page {
   return {
     id: "editor",
     renderable: textEditor,
-    onKeypress: (key) => {
+    onKeypress: (key: KeyEvent) => {
       if (key.name == "i") {
         queueMicrotask(() => textEditor.focus());
         return true;
@@ -27,5 +30,6 @@ export function editorComponent(renderer: RenderContext): Page {
         return true;
       }
     },
+    getEditorContent: () => textEditor.plainText,
   };
 }

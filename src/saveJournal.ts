@@ -2,8 +2,8 @@ import { join } from "node:path";
 import { homedir } from "node:os";
 import { existsSync, mkdirSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
+
 const TERMILOG_DIR = join(homedir(), ".termilog");
-const filePath = join(TERMILOG_DIR, "journal.md");
 
 const ensureDirectoryExists = (): void => {
   if (!existsSync(TERMILOG_DIR)) {
@@ -11,11 +11,11 @@ const ensureDirectoryExists = (): void => {
   }
 };
 
-const saveJournalFile = async () => {
+const saveJournalFile = async (journalContent: string, journalName: string) => {
   ensureDirectoryExists();
+  const filePath = join(TERMILOG_DIR, `${journalName}.md`);
   try {
-    const journalContent = textEditor.plainText;
-    const now = new Date();
+    /* const now = new Date();
     const dateAndTime = new Intl.DateTimeFormat("en-IN", {
       dateStyle: "medium",
       timeStyle: "short",
@@ -26,10 +26,12 @@ const saveJournalFile = async () => {
       `Date: ${dateAndTime}\n` +
       `Title: ${journalName}\n` +
       `Mood: ${mood}\n` +
-      `\n\n`;
-    const finalJournalContents = markdownFormatMetadata + journalContent;
+      `\n\n`; */
+    const finalJournalContents = journalContent;
     await writeFile(filePath, finalJournalContents, "utf-8");
   } catch (err) {
     console.error("Failed to save: ", err);
   }
 };
+
+export default saveJournalFile;
