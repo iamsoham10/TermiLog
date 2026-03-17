@@ -5,6 +5,7 @@ import { editorComponent } from "../components/editor";
 import { BaseLayout } from "../components/layout";
 import { journalSaveDialogComponent } from "../components/journalSaveDialog";
 import saveJournalFile from "../saveJournal";
+import { toast } from "@opentui-ui/toast";
 
 export function createJournalPage(renderer: RenderContext): Page {
   const sidebar = sidebarComponent(renderer).renderable;
@@ -12,11 +13,11 @@ export function createJournalPage(renderer: RenderContext): Page {
   const editorRenderable = editor.renderable;
   const fileSaverDialog = journalSaveDialogComponent(renderer, {
     onSave: (journalName) => {
-      console.log(`Saving journal ${journalName}`);
       saveJournalFile(
         editor.getEditorContent(),
         fileSaverDialog.getInputContent(),
       );
+      toast.success(`Journal ${journalName} saved`);
       closeDialog();
     },
   });

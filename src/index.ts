@@ -6,6 +6,7 @@ import {
 import { Router } from "./router";
 import { createHomePage } from "./pages/home";
 import { createJournalPage } from "./pages/journals";
+import { ToasterRenderable } from "@opentui-ui/toast";
 
 const renderer = await createCliRenderer({
   exitOnCtrlC: true,
@@ -16,6 +17,13 @@ const renderer = await createCliRenderer({
   },
   useMouse: true,
 });
+
+// add toaster
+const toaster = new ToasterRenderable(renderer, {
+  position: "bottom-right",
+});
+
+renderer.root.add(toaster);
 
 // renderer.debugOverlay = {
 //   enabled: true,

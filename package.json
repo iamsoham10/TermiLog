@@ -13,6 +13,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@opentui-ui/toast": "^0.0.5",
     "@opentui/core": "^0.1.77"
   }
 }
