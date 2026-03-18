@@ -30,7 +30,7 @@ export function createHomePage(renderer: RenderContext): Page {
 
   const page = instantiate(
     renderer,
-    BaseLayout(content, { border: true, borderStyle: "rounded" }),
+    BaseLayout(renderer, content, { border: true, borderStyle: "rounded" }),
   );
 
   return {

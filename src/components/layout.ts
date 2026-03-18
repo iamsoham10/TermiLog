@@ -2,11 +2,13 @@ import {
   Box,
   type BorderStyle,
   type Renderable,
+  type RenderContext,
   type VNode,
 } from "@opentui/core";
 import { footerComponent } from "./footer";
 
 export function BaseLayout(
+  renderer: RenderContext,
   content: VNode | Renderable,
   options?: {
     border?: boolean;
@@ -14,7 +16,7 @@ export function BaseLayout(
     borderStyle?: BorderStyle;
   },
 ): VNode {
-  const footer = footerComponent();
+  const footer = footerComponent(renderer).renderable;
   return Box(
     {
       width: "100%",

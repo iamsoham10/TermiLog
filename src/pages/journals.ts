@@ -55,7 +55,10 @@ export function createJournalPage(renderer: RenderContext): Page {
     ),
     fileSaverDialog.renderable,
   );
-  const page = instantiate(renderer, BaseLayout(content, { border: false }));
+  const page = instantiate(
+    renderer,
+    BaseLayout(renderer, content, { border: false }),
+  );
 
   // editorRenderable.focus();
   function toggleSidebar() {
