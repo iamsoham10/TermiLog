@@ -3,7 +3,7 @@ import {
   TextareaRenderable,
   type RenderContext,
 } from "@opentui/core";
-import { footerComponent } from "./footer";
+import type { footerComponent } from "./footer";
 
 const placeholders = [
   "How was your day?...",
@@ -20,8 +20,10 @@ const placeholders = [
 const currentPlaceholder =
   placeholders[Math.floor(Math.random() * placeholders.length)];
 
-export function editorComponent(renderer: RenderContext) {
-  const footerShortcuts = footerComponent(renderer);
+export function editorComponent(
+  renderer: RenderContext,
+  footer: ReturnType<typeof footerComponent>,
+) {
   const textEditor = new TextareaRenderable(renderer, {
     id: "editor-container",
     width: "100%",
@@ -37,12 +39,13 @@ export function editorComponent(renderer: RenderContext) {
     onKeypress: (key: KeyEvent) => {
       if (key.name == "i") {
         queueMicrotask(() => textEditor.focus());
-        footerShortcuts.setEditorMode(true);
+        footer.setEditorMode(true);
         return true;
       }
       if (textEditor.focused) {
         if (key.name == "escape") {
           textEditor.blur();
+          footer.setEditorMode(false);
           return true;
         }
         return true;

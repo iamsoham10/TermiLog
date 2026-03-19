@@ -1,8 +1,34 @@
 import { BoxRenderable, Text, type RenderContext } from "@opentui/core";
 
 export function footerComponent(renderer: RenderContext) {
+  const defaultShortcuts = [
+    {
+      key: "J",
+      label: "Journal",
+    },
+    {
+      key: "H",
+      label: "Home",
+    },
+    {
+      key: "I",
+      label: "Edit",
+    },
+    {
+      key: "Q",
+      label: "Quit",
+    },
+  ];
+
+  const editorShortcuts = [
+    {
+      key: "Esc",
+      label: "Exit editor mode",
+    },
+  ];
+
   const defaultFooter = new BoxRenderable(renderer, {
-    id: "deafult-footer",
+    id: "default-footer",
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
@@ -11,24 +37,14 @@ export function footerComponent(renderer: RenderContext) {
     backgroundColor: "#1a1a1a",
   });
 
-  defaultFooter.add(
-    Text({
-      content: "[J] Journal",
-      fg: "#999999",
-    }),
-  );
-  defaultFooter.add(
-    Text({
-      content: "[H] Home",
-      fg: "#999999",
-    }),
-  );
-  defaultFooter.add(
-    Text({
-      content: "[Q] Quit",
-      fg: "#999999",
-    }),
-  );
+  defaultShortcuts.forEach((shortcut) => {
+    defaultFooter.add(
+      Text({
+        content: `[${shortcut.key}] ${shortcut.label}`,
+        fg: "#999999",
+      }),
+    );
+  });
 
   const editorFooter = new BoxRenderable(renderer, {
     id: "editor-footer",
@@ -40,12 +56,14 @@ export function footerComponent(renderer: RenderContext) {
     backgroundColor: "#1a1a1a",
   });
 
-  editorFooter.add(
-    Text({
-      content: "[Q] Quit",
-      fg: "#999999",
-    }),
-  );
+  editorShortcuts.forEach((shortcut) => {
+    editorFooter.add(
+      Text({
+        content: `[${shortcut.key}] ${shortcut.label}`,
+        fg: "#999999",
+      }),
+    );
+  });
 
   editorFooter.visible = false;
 
@@ -56,29 +74,6 @@ export function footerComponent(renderer: RenderContext) {
   container.add(defaultFooter);
   container.add(editorFooter);
 
-  // return Box(
-  //   {
-  //     id: "footer",
-  //     width: "100%",
-  //     alignItems: "center",
-  //     justifyContent: "center",
-  //     flexDirection: "row",
-  //     gap: 2,
-  //     backgroundColor: "#1a1a1a",
-  //   },
-  //   Text({
-  //     content: "[J] Journal",
-  //     fg: "#999999",
-  //   }),
-  //   Text({
-  //     content: "[H] Home",
-  //     fg: "#999999",
-  //   }),
-  //   Text({
-  //     content: "[Q] Quit",
-  //     fg: "#999999",
-  //   }),
-  // );
   return {
     renderable: container,
     setEditorMode(enabled: boolean) {

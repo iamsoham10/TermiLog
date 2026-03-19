@@ -6,10 +6,12 @@ import { BaseLayout } from "../components/layout";
 import { journalSaveDialogComponent } from "../components/journalSaveDialog";
 import saveJournalFile from "../saveJournal";
 import { toast } from "@opentui-ui/toast";
+import { footerComponent } from "../components/footer";
 
 export function createJournalPage(renderer: RenderContext): Page {
+  const footer = footerComponent(renderer);
   const sidebar = sidebarComponent(renderer).renderable;
-  const editor = editorComponent(renderer);
+  const editor = editorComponent(renderer, footer);
   const editorRenderable = editor.renderable;
   const fileSaverDialog = journalSaveDialogComponent(renderer, {
     onSave: (journalName) => {
@@ -57,7 +59,7 @@ export function createJournalPage(renderer: RenderContext): Page {
   );
   const page = instantiate(
     renderer,
-    BaseLayout(renderer, content, { border: false }),
+    BaseLayout(content, footer.renderable, { border: false }),
   );
 
   // editorRenderable.focus();

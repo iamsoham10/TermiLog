@@ -8,8 +8,10 @@ import {
 } from "@opentui/core";
 import type { Page } from "../types/page";
 import { BaseLayout } from "../components/layout";
+import { footerComponent } from "../components/footer";
 
 export function createHomePage(renderer: RenderContext): Page {
+  const footerShortcuts = footerComponent(renderer).renderable;
   const content = Box(
     {
       id: "title-container",
@@ -30,7 +32,10 @@ export function createHomePage(renderer: RenderContext): Page {
 
   const page = instantiate(
     renderer,
-    BaseLayout(renderer, content, { border: true, borderStyle: "rounded" }),
+    BaseLayout(content, footerShortcuts, {
+      border: true,
+      borderStyle: "rounded",
+    }),
   );
 
   return {
