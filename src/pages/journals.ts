@@ -79,6 +79,13 @@ export function createJournalPage(renderer: RenderContext): Page {
           closeDialog();
           return true;
         }
+        if (key.name === "tab") {
+          if (fileSaverDialog.isInputFocused()) {
+            fileSaverDialog.focusMoods();
+          } else {
+            fileSaverDialog.focusInput();
+          }
+        }
         return true;
       }
       if (editor?.onKeypress?.(key)) return true;

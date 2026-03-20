@@ -3,6 +3,8 @@ import {
   InputRenderable,
   InputRenderableEvents,
   instantiate,
+  Select,
+  SelectRenderable,
   Text,
   type RenderContext,
 } from "@opentui/core";
@@ -29,30 +31,18 @@ export function journalSaveDialogComponent(
     callback.onSave(journalName);
   });
 
-  // const moods = [
-  //   {
-  //     name: "Happy",
-  //     emoji: "😊",
-  //   },
-  //   {
-  //     name: "Good",
-  //     emoji: "🙂",
-  //   },
-  //   {
-  //     name: "Neutral",
-  //     emoji: "😐",
-  //   },
-  //   {
-  //     name: "Sad",
-  //     emoji: "😔",
-  //   },
-  //   {
-  //     name: "Angry",
-  //     emoji: "😡",
-  //   },
-  // ];
-
-  // const currentMoods = moods.map((mood) => mood.name + mood.emoji + "\n");
+  const moodSelector = new SelectRenderable(renderer, {
+    showDescription: false,
+    height: 5,
+    focusedBackgroundColor: "#202020",
+    options: [
+      { name: "😊 Happy", description: "" },
+      { name: "🙂 Good", description: "" },
+      { name: "😐 Neutral", description: "" },
+      { name: "😔 Sad", description: "" },
+      { name: "😡 Angry", description: "" },
+    ],
+  });
 
   const saveDialog = instantiate(
     renderer,
@@ -97,18 +87,15 @@ export function journalSaveDialogComponent(
         },
         journalNameInput,
       ),
-      // Box(
-      //   {
-      //     marginTop: 1,
-      //     justifyContent: "flex-start",
-      //     flexDirection: "column",
-      //     gap: 1,
-      //   },
-      //   Text({
-      //     content: `${currentMoods}`,
-      //     flexDirection: "column",
-      //   }),
-      // ),
+      Box(
+        {
+          marginTop: 1,
+          justifyContent: "flex-start",
+          flexDirection: "column",
+          gap: 1,
+        },
+        moodSelector,
+      ),
       Box(
         {
           marginTop: 2,
@@ -153,11 +140,14 @@ export function journalSaveDialogComponent(
     renderable: saveDialog,
     getInputContent: () => journalNameInput.plainText,
     focusInput: () => journalNameInput.focus(),
+    focusMoods: () => moodSelector.focus(),
     blurInput: () => journalNameInput.blur(),
     resetInput: () => {
       journalNameInput.value = "";
       journalNameInput.placeholder = "journal name...";
       journalNameInput.placeholderColor = "#6E6E6E";
     },
+    isInputFocused: () => journalNameInput.focused,
+    isMoodsFocused: () => journalNameInput.focused,
   };
 }
