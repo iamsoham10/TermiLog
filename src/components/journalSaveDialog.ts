@@ -3,7 +3,6 @@ import {
   InputRenderable,
   InputRenderableEvents,
   instantiate,
-  Select,
   SelectRenderable,
   Text,
   type RenderContext,
@@ -12,7 +11,7 @@ import {
 export function journalSaveDialogComponent(
   renderer: RenderContext,
   callback: {
-    onSave: (journalName: string) => void;
+    onSave: (journalName: string, mood: string) => void;
   },
 ) {
   const journalNameInput = new InputRenderable(renderer, {
@@ -22,26 +21,34 @@ export function journalSaveDialogComponent(
     marginLeft: 1,
   });
 
+  const moodOptions = [
+    { name: "😊 Happy", description: "", value: "happy" },
+    { name: "🙂 Good", description: "", value: "good" },
+    { name: "😐 Neutral", description: "", value: "neutral" },
+    { name: "😔 Sad", description: "", value: "sad" },
+    { name: "😡 Angry", description: "", value: "angry" },
+  ];
+
+  const moodSelector = new SelectRenderable(renderer, {
+    showDescription: false,
+    height: 5,
+    focusedBackgroundColor: "#202020",
+    options: moodOptions,
+    selectedIndex: 2, // Default to Neutral
+  });
+
+  const getSelectedMood = () => {
+    const index = moodSelector.selectedIndex ?? 2;
+    return moodOptions[index]?.value ?? "neutral";
+  };
+
   journalNameInput.on(InputRenderableEvents.ENTER, (journalName) => {
     if (!journalName || journalName.trim() === "") {
       journalNameInput.placeholder = "required...";
       journalNameInput.placeholderColor = "#F54927";
       return;
     }
-    callback.onSave(journalName);
-  });
-
-  const moodSelector = new SelectRenderable(renderer, {
-    showDescription: false,
-    height: 5,
-    focusedBackgroundColor: "#202020",
-    options: [
-      { name: "😊 Happy", description: "" },
-      { name: "🙂 Good", description: "" },
-      { name: "😐 Neutral", description: "" },
-      { name: "😔 Sad", description: "" },
-      { name: "😡 Angry", description: "" },
-    ],
+    callback.onSave(journalName, getSelectedMood());
   });
 
   const saveDialog = instantiate(
@@ -86,6 +93,15 @@ export function journalSaveDialogComponent(
           borderStyle: "single",
         },
         journalNameInput,
+      ),
+      Box(
+        {
+          marginTop: 1,
+          justifyContent: "flex-start",
+        },
+        Text({
+          content: "Select mood:",
+        }),
       ),
       Box(
         {
@@ -139,6 +155,7 @@ export function journalSaveDialogComponent(
     id: "save journal dialog",
     renderable: saveDialog,
     getInputContent: () => journalNameInput.plainText,
+    getSelectedMood,
     focusInput: () => journalNameInput.focus(),
     focusMoods: () => moodSelector.focus(),
     blurInput: () => journalNameInput.blur(),
@@ -148,6 +165,6 @@ export function journalSaveDialogComponent(
       journalNameInput.placeholderColor = "#6E6E6E";
     },
     isInputFocused: () => journalNameInput.focused,
-    isMoodsFocused: () => journalNameInput.focused,
+    // isMoodsFocused: () => moodSelector.focused,
   };
 }

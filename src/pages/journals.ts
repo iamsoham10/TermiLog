@@ -14,10 +14,11 @@ export function createJournalPage(renderer: RenderContext): Page {
   const editor = editorComponent(renderer, footer);
   const editorRenderable = editor.renderable;
   const fileSaverDialog = journalSaveDialogComponent(renderer, {
-    onSave: (journalName) => {
+    onSave: (journalName, mood) => {
       saveJournalFile(
         editor.getEditorContent(),
         fileSaverDialog.getInputContent(),
+        mood,
       );
       toast.success(`Journal ${journalName} saved`);
       closeDialog();
