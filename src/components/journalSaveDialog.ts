@@ -4,6 +4,7 @@ import {
   InputRenderableEvents,
   instantiate,
   SelectRenderable,
+  SelectRenderableEvents,
   Text,
   type RenderContext,
 } from "@opentui/core";
@@ -22,27 +23,31 @@ export function journalSaveDialogComponent(
   });
 
   const moodOptions = [
-    { name: "😊 Happy", description: "", value: "happy" },
-    { name: "🙂 Good", description: "", value: "good" },
-    { name: "😐 Neutral", description: "", value: "neutral" },
-    { name: "😔 Sad", description: "", value: "sad" },
-    { name: "😡 Angry", description: "", value: "angry" },
+    { name: "😊 Happy", description: "", value: "Happy" },
+    { name: "🙂 Good", description: "", value: "Good" },
+    { name: "😐 Neutral", description: "", value: "Neutral" },
+    { name: "😔 Sad", description: "", value: "Sad" },
+    { name: "😡 Angry", description: "", value: "Angry" },
   ];
 
+  let currentMoodIndex = 0;
   const moodSelector = new SelectRenderable(renderer, {
     showDescription: false,
     height: 5,
     focusedBackgroundColor: "#202020",
     options: moodOptions,
-    selectedIndex: 2, // Default to Neutral
+    selectedIndex: 0,
+  });
+
+  moodSelector.on(SelectRenderableEvents.SELECTION_CHANGED, (index) => {
+    currentMoodIndex = index;
   });
 
   const getSelectedMood = () => {
-    const index = moodSelector.selectedIndex ?? 2;
-    return moodOptions[index]?.value ?? "neutral";
+    return moodOptions[currentMoodIndex]?.value ?? "neutral";
   };
 
-  journalNameInput.on(InputRenderableEvents.ENTER, (journalName) => {
+  journalNameInput.on(InputRenderableEvents.ENTER, (journalName: string) => {
     if (!journalName || journalName.trim() === "") {
       journalNameInput.placeholder = "required...";
       journalNameInput.placeholderColor = "#F54927";

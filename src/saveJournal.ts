@@ -39,17 +39,18 @@ const saveJournalFile = async (
   const filePath = join(TERMILOG_DIR, filename);
 
   try {
-    // Save the journal content
+    // save the journal
     await writeFile(filePath, journalContent, "utf-8");
 
-    // Update the metadata index
-    const index = readJournalsIndex();
+    // read the index file
+    const indexFile = readJournalsIndex();
 
-    // Check if entry already exists (updating existing journal)
-    const existingIndex = index.journals.findIndex(
-      (j) => j.filename === filename,
+    // check if index entry already exists
+    const existingEntry = indexFile.journals.findIndex(
+      (journal) => journal.filename === filename,
     );
 
+    // make the metadata
     const metadata: JournalMetadata = {
       filename,
       title: journalName,
@@ -57,18 +58,19 @@ const saveJournalFile = async (
       createdAt: new Date().toISOString(),
     };
 
-    if (existingIndex >= 0) {
-      // Update existing entry (keep original createdAt, update mood)
-      const existing = index.journals[existingIndex];
-      if (existing) {
-        existing.mood = mood;
+    // if exists just update the mood
+    if (existingEntry >= 0) {
+      const existingIndex = indexFile.journals[existingEntry];
+      if (existingIndex) {
+        existingIndex.mood = mood;
       }
     } else {
-      // Add new entry
-      index.journals.push(metadata);
+      // else push entire metadata
+      indexFile.journals.push(metadata);
     }
 
-    await writeJournalsIndex(index);
+    // write journal index file
+    await writeJournalsIndex(indexFile);
   } catch (err) {
     console.error("Failed to save: ", err);
   }
