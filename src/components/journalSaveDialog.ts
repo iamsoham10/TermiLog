@@ -39,7 +39,7 @@ export function journalSaveDialogComponent(
     selectedIndex: 0,
   });
 
-  moodSelector.on(SelectRenderableEvents.SELECTION_CHANGED, (index) => {
+  moodSelector.on(SelectRenderableEvents.SELECTION_CHANGED, (index: number) => {
     currentMoodIndex = index;
   });
 
