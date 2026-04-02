@@ -10,9 +10,10 @@ const TERMILOG_DIR = join(homedir(), ".termilog");
 const listJournalFile = async (): Promise<string[]> => {
   try {
     const journalFiles = await readdir(TERMILOG_DIR);
-    const journalFileNames = journalFiles.filter((journalFile) =>
-      statSync(path.join(TERMILOG_DIR, journalFile)).isFile(),
-    );
+    const journalFileNames = journalFiles.filter((journalFile) => {
+      (statSync(path.join(TERMILOG_DIR, journalFile)).isFile(),
+        journalFile != "journals.json");
+    });
     return journalFileNames;
   } catch (err) {
     console.error("Error reading directory:", err);
@@ -51,5 +52,6 @@ export function sidebarComponent(renderer: RenderContext) {
   return {
     id: "sidebar",
     renderable: sidebar,
+    refreshSidebar: listJournalFile(),
   };
 }

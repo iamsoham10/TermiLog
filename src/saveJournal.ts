@@ -47,12 +47,11 @@ const saveJournalFile = async (
 
     // check if index entry already exists
     const existingEntry = indexFile.journals.findIndex(
-      (journal) => journal.filename === filename,
+      (journal) => journal.title === filename,
     );
 
     // make the metadata
     const metadata: JournalMetadata = {
-      filename,
       title: journalName,
       mood,
       createdAt: new Date().toISOString(),

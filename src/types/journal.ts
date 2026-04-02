@@ -1,5 +1,4 @@
 export interface JournalMetadata {
-  filename: string;
   title: string;
   mood: string;
   createdAt: string;
