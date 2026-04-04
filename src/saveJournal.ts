@@ -1,32 +1,17 @@
 import { join } from "node:path";
-import { homedir } from "node:os";
-import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
-import type { JournalsIndex, JournalMetadata } from "./types/journal";
-
-const TERMILOG_DIR = join(homedir(), ".termilog");
-const JOURNALS_INDEX_PATH = join(TERMILOG_DIR, "journals.json");
+import type { JournalMetadata } from "./types/journal";
+import {
+  readJournalsIndex,
+  TERMILOG_DIR,
+  writeJournalsIndex,
+} from "./journalStorage";
 
 const ensureDirectoryExists = (): void => {
   if (!existsSync(TERMILOG_DIR)) {
     mkdirSync(TERMILOG_DIR, { recursive: true });
   }
-};
-
-const readJournalsIndex = (): JournalsIndex => {
-  try {
-    if (existsSync(JOURNALS_INDEX_PATH)) {
-      const content = readFileSync(JOURNALS_INDEX_PATH, "utf-8");
-      return JSON.parse(content);
-    }
-  } catch {
-    // If file is corrupted, start fresh
-  }
-  return { journals: [] };
-};
-
-const writeJournalsIndex = async (index: JournalsIndex): Promise<void> => {
-  await writeFile(JOURNALS_INDEX_PATH, JSON.stringify(index, null, 2), "utf-8");
 };
 
 const saveJournalFile = async (
@@ -47,7 +32,7 @@ const saveJournalFile = async (
 
     // check if index entry already exists
     const existingEntry = indexFile.journals.findIndex(
-      (journal) => journal.title === filename,
+      (journal) => journal.title === journalName,
     );
 
     // make the metadata
