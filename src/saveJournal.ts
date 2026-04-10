@@ -37,9 +37,11 @@ const saveJournalFile = async (
 
     // make the metadata
     const metadata: JournalMetadata = {
+      journalId: crypto.randomUUID(),
       title: journalName,
       mood,
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     // if exists just update the mood
