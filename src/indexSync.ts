@@ -9,22 +9,33 @@ import { existsSync } from "node:fs";
 
 export const reconcileOnStartup = async () => {
   // read the index file
-  const fileNames = readJournalsIndex();
+  const journalIndex = readJournalsIndex();
   // remove the records of files which are not present
-  fileNames.journals = fileNames.journals.filter((file) => {
+  journalIndex.journals = journalIndex.journals.filter((file) => {
     const filePath = join(TERMILOG_DIR, `${file.title}.md`);
     return existsSync(filePath);
   });
 
-  for (const file of fileNames.journals) {
+  for (const file of journalIndex.journals) {
     const filePath = join(TERMILOG_DIR, `${file.title}.md`);
-    const fileStat = statSync(filePath);
-    const mtime = fileStat.mtime.toISOString();
+    try {
+      const fileStat = statSync(filePath);
+      const mtime = fileStat.mtime.getTime();
+      const fileUpdatedAt = new Date(file.updatedAt).getTime();
 
-    if (mtime > file.updatedAt) {
-      // file is modified externally. Update the index here
-      file.updatedAt = new Date(mtime).toISOString();
+      if (mtime > fileUpdatedAt) {
+        // file is modified externally. Update the index here
+        file.updatedAt = new Date(mtime).toISOString();
+      }
+    } catch (err) {
+      console.warn("File deleted during reconcile", filePath);
+      continue;
     }
   }
-  await writeJournalsIndex(fileNames);
+  // remove entries of files that failed stat
+  journalIndex.journals = journalIndex.journals.filter((file) => {
+    const filePath = join(TERMILOG_DIR, `${file.title}.md`);
+    return existsSync(filePath);
+  });
+  await writeJournalsIndex(journalIndex);
 };
