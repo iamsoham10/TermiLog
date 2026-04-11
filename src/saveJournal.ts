@@ -49,6 +49,7 @@ const saveJournalFile = async (
       const existingIndex = indexFile.journals[existingEntry];
       if (existingIndex) {
         existingIndex.mood = mood;
+        existingIndex.updatedAt = new Date().toISOString();
       }
     } else {
       // else push entire metadata

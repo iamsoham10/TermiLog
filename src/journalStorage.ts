@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import type { JournalsIndex } from "./types/journal";
@@ -11,11 +11,7 @@ const JOURNAL_INDEX_PATH = join(
   ".termilog",
   "index.json",
 );
-const ensureDirectoryExists = (): void => {
-  if (!existsSync(JOURNAL_INDEX_PATH)) {
-    mkdirSync(JOURNAL_INDEX_PATH, { recursive: true });
-  }
-};
+
 export const readJournalNamesFromIndex = (): string[] => {
   try {
     if (existsSync(JOURNAL_INDEX_PATH)) {

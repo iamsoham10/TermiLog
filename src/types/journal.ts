@@ -1,7 +1,7 @@
 export interface JournalMetadata {
   journalId: string;
   title: string;
-  mood: string;
+  mood?: string;
   createdAt: string;
   updatedAt: string;
 }
