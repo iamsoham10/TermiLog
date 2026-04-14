@@ -26,7 +26,7 @@ export function BaseLayout(
       borderColor: options?.borderColor,
       borderStyle: options?.borderStyle,
     },
-    Box({ id: "content-area", flexGrow: 1 }, content),
+    content,
     footerRenderable,
   );
 }

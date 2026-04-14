@@ -1,27 +1,7 @@
 import { Box, instantiate, Text, type RenderContext } from "@opentui/core";
-import console from "node:console";
-import { statSync } from "node:fs";
-import { readdir } from "node:fs/promises";
-import { homedir } from "node:os";
-import path, { join } from "node:path";
+import { readJournalsIndex } from "../journalStorage";
 
-const TERMILOG_DIR = join(homedir(), ".termilog");
-
-const listJournalFile = async (): Promise<string[]> => {
-  try {
-    const journalFiles = await readdir(TERMILOG_DIR);
-    const journalFileNames = journalFiles.filter((journalFile) => {
-      (statSync(path.join(TERMILOG_DIR, journalFile)).isFile(),
-        journalFile != "journals.json");
-    });
-    return journalFileNames;
-  } catch (err) {
-    console.error("Error reading directory:", err);
-    return [];
-  }
-};
-
-const journals = await listJournalFile();
+const journals = readJournalsIndex();
 
 export function sidebarComponent(renderer: RenderContext) {
   const sidebar = instantiate(
@@ -42,16 +22,16 @@ export function sidebarComponent(renderer: RenderContext) {
         padding: 1,
       },
       Text({
-        content: journals[0],
+        content: journals.journals[0]?.title,
       }),
       Text({
-        content: journals[1],
+        content: journals.journals[1]?.title,
       }),
     ),
   );
   return {
     id: "sidebar",
     renderable: sidebar,
-    refreshSidebar: listJournalFile(),
+    // refreshSidebar: listJournalFile(),
   };
 }

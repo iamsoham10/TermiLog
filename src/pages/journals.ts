@@ -4,6 +4,7 @@ import { sidebarComponent } from "../components/sidebar";
 import { editorComponent } from "../components/editor";
 import { BaseLayout } from "../components/layout";
 import { journalSaveDialogComponent } from "../components/journalSaveDialog";
+import { journalInfoComponent } from "../components/journalInfo.ts";
 import saveJournalFile from "../saveJournal";
 import { toast } from "@opentui-ui/toast";
 import { footerComponent } from "../components/footer";
@@ -12,6 +13,7 @@ export function createJournalPage(renderer: RenderContext): Page {
   const footer = footerComponent(renderer);
   const sidebar = sidebarComponent(renderer).renderable;
   const editor = editorComponent(renderer, footer);
+  const journalInfoBar = journalInfoComponent(renderer).renderable;
   const editorRenderable = editor.renderable;
   const fileSaverDialog = journalSaveDialogComponent(renderer, {
     onSave: (journalName, mood) => {
@@ -46,15 +48,22 @@ export function createJournalPage(renderer: RenderContext): Page {
         title: "Editor",
         width: "100%",
         height: "100%",
+        flexDirection: "column",
         flexGrow: 1,
-        alignItems: "flex-start",
-        justifyContent: "flex-start",
-        padding: 3,
+        paddingTop: 1,
         border: true,
         borderColor: "#696969",
         backgroundColor: "#1a1a1a",
       },
-      editorRenderable,
+      journalInfoBar,
+      Box(
+        {
+          paddingTop: 2,
+          paddingLeft: 3,
+          paddingRight: 3,
+        },
+        editorRenderable,
+      ),
     ),
     fileSaverDialog.renderable,
   );

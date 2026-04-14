@@ -52,7 +52,6 @@ const reconcileFileSystem = async () => {
     )
     .map((mdFile) => mdFile.name.slice(0, -3));
 
-  console.log(mdJournalFiles);
   for (let file of mdJournalFiles) {
     if (!indexFile.has(file)) {
       const metadata: JournalMetadata = {
