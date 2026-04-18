@@ -50,6 +50,14 @@ export function editorComponent(
         }
         return true;
       }
+      if (textEditor.focused) {
+        if (key.name == "tab") {
+          textEditor.blur();
+          footer.setEditorMode(false);
+          return true;
+        }
+        return true;
+      }
     },
     getEditorContent: () => textEditor.plainText,
   };

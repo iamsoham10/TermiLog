@@ -1,9 +1,34 @@
-import { Box, instantiate, Text, type RenderContext } from "@opentui/core";
+import {
+  Box,
+  instantiate,
+  KeyEvent,
+  Select,
+  SelectRenderableEvents,
+  type RenderContext,
+} from "@opentui/core";
 import { readJournalsIndex } from "../journalStorage";
 
+interface SideBarListItem {
+  name: string;
+  description: string;
+}
+
 const journals = readJournalsIndex();
+const sidebarList: SideBarListItem[] = journals.journals.map((j) => {
+  return { name: j.title, description: j.journalId };
+});
 
 export function sidebarComponent(renderer: RenderContext) {
+  let selectedJournalIndex = 0;
+  const selectComponent = instantiate(
+    renderer,
+    Select({
+      height: "100%",
+      options: sidebarList,
+      itemSpacing: 1,
+      showScrollIndicator: false,
+    }),
+  );
   const sidebar = instantiate(
     renderer,
     Box(
@@ -21,17 +46,32 @@ export function sidebarComponent(renderer: RenderContext) {
         justifyContent: "flex-start",
         padding: 1,
       },
-      Text({
-        content: journals.journals[0]?.title,
-      }),
-      Text({
-        content: journals.journals[1]?.title,
-      }),
+      selectComponent,
     ),
   );
+
+  selectComponent.on(
+    SelectRenderableEvents.SELECTION_CHANGED,
+    (index: number) => {
+      selectedJournalIndex = index;
+    },
+  );
+
+  selectComponent.on(SelectRenderableEvents.ITEM_SELECTED, (index) => {
+    console.log(`Journal ${index} selected`);
+  });
+
   return {
     id: "sidebar",
     renderable: sidebar,
+    selectComponent,
+    getSelectorIndex: () => journals.journals[selectedJournalIndex],
+    onKeypress: (key: KeyEvent) => {
+      if (key.name === "enter") {
+        return true;
+      }
+      return true;
+    },
     // refreshSidebar: listJournalFile(),
   };
 }

@@ -11,7 +11,10 @@ import { footerComponent } from "../components/footer";
 
 export function createJournalPage(renderer: RenderContext): Page {
   const footer = footerComponent(renderer);
-  const sidebar = sidebarComponent(renderer).renderable;
+  const sidebar = sidebarComponent(renderer);
+  const sidebarSelector = sidebar.renderable;
+  const journalSelectorComponent = sidebar.selectComponent;
+  // const selectedJournal = sidebar.getSelectorIndex();
   const editor = editorComponent(renderer, footer);
   const journalInfoBar = journalInfoComponent(renderer).renderable;
   const editorRenderable = editor.renderable;
@@ -41,7 +44,7 @@ export function createJournalPage(renderer: RenderContext): Page {
       justifyContent: "center",
       alignItems: "center",
     },
-    sidebar,
+    sidebarSelector,
     Box(
       {
         id: "main-content-container",
@@ -74,7 +77,7 @@ export function createJournalPage(renderer: RenderContext): Page {
 
   // editorRenderable.focus();
   function toggleSidebar() {
-    sidebar.visible = !sidebar.visible;
+    sidebarSelector.visible = !sidebarSelector.visible;
   }
 
   return {
@@ -98,6 +101,16 @@ export function createJournalPage(renderer: RenderContext): Page {
         }
         return true;
       }
+      if (key.name === "tab") {
+        if (journalSelectorComponent.focused) {
+          journalSelectorComponent.blur();
+          footer.setSidebarMode(false);
+        } else {
+          journalSelectorComponent.focus();
+          footer.setSidebarMode(true);
+        }
+      }
+      if (sidebarSelector.focused && sidebar.onKeypress?.(key)) return true;
       if (editor?.onKeypress?.(key)) return true;
       if (key.ctrl && key.name === "s") {
         fileSaverDialog.renderable.visible = true;

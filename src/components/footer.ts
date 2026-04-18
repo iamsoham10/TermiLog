@@ -1,33 +1,20 @@
-import { BoxRenderable, Text, type RenderContext } from "@opentui/core";
+import {
+  BoxRenderable,
+  TextRenderable,
+  type RenderContext,
+} from "@opentui/core";
 
 export function footerComponent(renderer: RenderContext) {
-  const defaultShortcuts = [
-    {
-      key: "J",
-      label: "Journal",
-    },
-    {
-      key: "H",
-      label: "Home",
-    },
-    {
-      key: "I",
-      label: "Edit",
-    },
-    {
-      key: "Q",
-      label: "Quit",
-    },
-  ];
+  type Shortcut = {
+    key: string;
+    label: string;
+  };
+  type ShortcutNode = {
+    id: string;
+    node: TextRenderable;
+  };
 
-  const editorShortcuts = [
-    {
-      key: "Esc",
-      label: "Exit editor mode",
-    },
-  ];
-
-  const defaultFooter = new BoxRenderable(renderer, {
+  const shortcutContainer = new BoxRenderable(renderer, {
     id: "default-footer",
     width: "100%",
     alignItems: "center",
@@ -37,48 +24,52 @@ export function footerComponent(renderer: RenderContext) {
     backgroundColor: "#1a1a1a",
   });
 
-  defaultShortcuts.forEach((shortcut) => {
-    defaultFooter.add(
-      Text({
+  function createShortcutText(shortcut: Shortcut, index: number): ShortcutNode {
+    const id = `footer-shortcut-${index}`;
+    return {
+      id,
+      node: new TextRenderable(renderer, {
         content: `[${shortcut.key}] ${shortcut.label}`,
         fg: "#999999",
       }),
+    };
+  }
+
+  let currentChildren: ShortcutNode[] = [];
+
+  function setShortcuts(shortcuts: Shortcut[]) {
+    if (currentChildren.length != 0) {
+      for (const child of currentChildren) {
+        shortcutContainer.remove(child.id);
+        child.node.destroy();
+      }
+    }
+    currentChildren = shortcuts.map((shortcut, index) =>
+      createShortcutText(shortcut, index),
     );
-  });
+    for (const child of currentChildren) {
+      shortcutContainer.add(child.node);
+    }
+  }
 
-  const editorFooter = new BoxRenderable(renderer, {
-    id: "editor-footer",
-    width: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row",
-    gap: 2,
-    backgroundColor: "#1a1a1a",
-  });
+  const defaultShortcuts = [
+    { key: "J", label: "Journal" },
+    { key: "H", label: "Home" },
+    { key: "I", label: "Edit" },
+    { key: "Q", label: "Quit" },
+  ];
+  const editorShortcuts = [{ key: "Esc", label: "Exit editor mode" }];
+  const sidebarShortcuts = [{ key: "↑↓", label: "Navigate journals" }];
 
-  editorShortcuts.forEach((shortcut) => {
-    editorFooter.add(
-      Text({
-        content: `[${shortcut.key}] ${shortcut.label}`,
-        fg: "#999999",
-      }),
-    );
-  });
-
-  editorFooter.visible = false;
-
-  const container = new BoxRenderable(renderer, {
-    id: "footer-container",
-    width: "100%",
-  });
-  container.add(defaultFooter);
-  container.add(editorFooter);
+  setShortcuts(defaultShortcuts);
 
   return {
-    renderable: container,
+    renderable: shortcutContainer,
     setEditorMode(enabled: boolean) {
-      defaultFooter.visible = !enabled;
-      editorFooter.visible = enabled;
+      setShortcuts(enabled ? editorShortcuts : defaultShortcuts);
+    },
+    setSidebarMode(enabled: boolean) {
+      setShortcuts(enabled ? sidebarShortcuts : defaultShortcuts);
     },
   };
 }
