@@ -13,12 +13,11 @@ interface SideBarListItem {
   description: string;
 }
 
-const journals = readJournalsIndex();
-const sidebarList: SideBarListItem[] = journals.journals.map((j) => {
-  return { name: j.title, description: j.journalId };
-});
-
 export function sidebarComponent(renderer: RenderContext) {
+  const journals = readJournalsIndex();
+  const sidebarList: SideBarListItem[] = journals.journals.map((j) => {
+    return { name: j.title, description: j.journalId };
+  });
   let selectedJournalIndex = 0;
   const selectComponent = instantiate(
     renderer,
