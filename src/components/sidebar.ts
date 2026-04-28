@@ -1,5 +1,6 @@
 import {
   Box,
+  BoxRenderable,
   instantiate,
   KeyEvent,
   Select,
@@ -47,7 +48,7 @@ export function sidebarComponent(renderer: RenderContext) {
       },
       selectComponent,
     ),
-  );
+  ) as BoxRenderable;
 
   selectComponent.on(
     SelectRenderableEvents.SELECTION_CHANGED,
@@ -70,6 +71,9 @@ export function sidebarComponent(renderer: RenderContext) {
         return true;
       }
       return true;
+    },
+    updateBorderColor: (focus: boolean) => {
+      sidebar.borderColor = focus ? "#FF6600" : "#696969";
     },
     // refreshSidebar: listJournalFile(),
   };

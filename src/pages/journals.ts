@@ -14,9 +14,7 @@ export function createJournalPage(renderer: RenderContext): Page {
   const sidebar = sidebarComponent(renderer);
   const sidebarSelector = sidebar.renderable;
   const journalSelectorComponent = sidebar.selectComponent;
-  // const selectedJournal = sidebar.getSelectorIndex();
   const editor = editorComponent(renderer, footer);
-  const journalInfoBar = journalInfoComponent(renderer).renderable;
   const editorRenderable = editor.renderable;
   const fileSaverDialog = journalSaveDialogComponent(renderer, {
     onSave: (journalName, mood) => {
@@ -45,31 +43,10 @@ export function createJournalPage(renderer: RenderContext): Page {
       alignItems: "center",
     },
     sidebarSelector,
-    Box(
-      {
-        id: "main-content-container",
-        title: "Editor",
-        width: "100%",
-        height: "100%",
-        flexDirection: "column",
-        flexGrow: 1,
-        paddingTop: 1,
-        border: true,
-        borderColor: "#696969",
-        backgroundColor: "#1a1a1a",
-      },
-      journalInfoBar,
-      Box(
-        {
-          paddingTop: 2,
-          paddingLeft: 3,
-          paddingRight: 3,
-        },
-        editorRenderable,
-      ),
-    ),
+    editorRenderable,
     fileSaverDialog.renderable,
   );
+
   const page = instantiate(
     renderer,
     BaseLayout(content, footer.renderable, { border: false }),
@@ -104,9 +81,11 @@ export function createJournalPage(renderer: RenderContext): Page {
       if (key.name === "tab") {
         if (journalSelectorComponent.focused) {
           journalSelectorComponent.blur();
+          sidebar.updateBorderColor(false);
           footer.setSidebarMode(false);
         } else {
           journalSelectorComponent.focus();
+          sidebar.updateBorderColor(true);
           footer.setSidebarMode(true);
         }
       }

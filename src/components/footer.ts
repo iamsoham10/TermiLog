@@ -3,6 +3,7 @@ import {
   TextRenderable,
   type RenderContext,
 } from "@opentui/core";
+import { isLabeledStatement } from "typescript";
 
 export function footerComponent(renderer: RenderContext) {
   type Shortcut = {
@@ -57,6 +58,8 @@ export function footerComponent(renderer: RenderContext) {
     { key: "H", label: "Home" },
     { key: "I", label: "Edit" },
     { key: "Q", label: "Quit" },
+    { key: "Tab", label: "Sidebar" },
+    { key: "Ctrl+b", label: "Toggle Sidebar" },
   ];
   const editorShortcuts = [{ key: "Esc", label: "Exit editor mode" }];
   const sidebarShortcuts = [{ key: "↑↓", label: "Navigate journals" }];
