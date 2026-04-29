@@ -71,6 +71,13 @@ export function editorComponent(
   return {
     id: "editor",
     renderable: editorContainer,
+    textEditor,
+    isTextEditorFocused: () => textEditor.focused,
+    blurEditor: () => {
+      textEditor.blur();
+      editorContainer.borderColor = RGBA.fromHex("#696969");
+      footer.setEditorMode(false);
+    },
     onKeypress: (key: KeyEvent) => {
       if (key.name == "i") {
         queueMicrotask(() => textEditor.focus());
@@ -87,14 +94,7 @@ export function editorComponent(
         }
         return true;
       }
-      if (textEditor.focused) {
-        if (key.name == "tab") {
-          textEditor.blur();
-          footer.setEditorMode(false);
-          return true;
-        }
-        return true;
-      }
+      return false;
     },
     getEditorContent: () => textEditor.plainText,
   };

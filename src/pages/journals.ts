@@ -79,17 +79,33 @@ export function createJournalPage(renderer: RenderContext): Page {
         return true;
       }
       if (key.name === "tab") {
+        if (editor.isTextEditorFocused()) {
+          // if editor is focused, blur it
+          editor.blurEditor();
+          journalSelectorComponent.focus();
+          sidebar.updateBorderColor(true);
+          footer.setSidebarMode(true);
+          return true;
+        }
+        // if sidebar is focused, blur it
         if (journalSelectorComponent.focused) {
           journalSelectorComponent.blur();
           sidebar.updateBorderColor(false);
           footer.setSidebarMode(false);
-        } else {
-          journalSelectorComponent.focus();
-          sidebar.updateBorderColor(true);
-          footer.setSidebarMode(true);
+          return true;
         }
+        // if neither is focused, focus sidebar
+        journalSelectorComponent.focus();
+        sidebar.updateBorderColor(true);
+        footer.setSidebarMode(true);
+        return true;
       }
       if (sidebarSelector.focused && sidebar.onKeypress?.(key)) return true;
+      if (key.name === "i" && journalSelectorComponent.focused) {
+        journalSelectorComponent.blur();
+        sidebar.updateBorderColor(false);
+        footer.setEditorMode(false);
+      }
       if (editor?.onKeypress?.(key)) return true;
       if (key.ctrl && key.name === "s") {
         fileSaverDialog.renderable.visible = true;
