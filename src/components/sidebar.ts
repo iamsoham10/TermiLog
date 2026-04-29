@@ -26,7 +26,9 @@ export function sidebarComponent(renderer: RenderContext) {
       height: "100%",
       options: sidebarList,
       itemSpacing: 1,
-      showScrollIndicator: false,
+      showDescription: false,
+      selectedTextColor: "#FFFF00",
+      selectedIndex: -1,
     }),
   );
   const sidebar = instantiate(
@@ -73,7 +75,7 @@ export function sidebarComponent(renderer: RenderContext) {
       return true;
     },
     updateBorderColor: (focus: boolean) => {
-      sidebar.borderColor = focus ? "#FF6600" : "#696969";
+      sidebar.borderColor = focus ? "#00FFFF" : "#696969";
     },
     // refreshSidebar: listJournalFile(),
   };

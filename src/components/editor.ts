@@ -81,7 +81,7 @@ export function editorComponent(
     onKeypress: (key: KeyEvent) => {
       if (key.name == "i") {
         queueMicrotask(() => textEditor.focus());
-        editorContainer.borderColor = RGBA.fromHex("#FF6600");
+        editorContainer.borderColor = RGBA.fromHex("#00FFFF");
         footer.setEditorMode(true);
         return true;
       }
