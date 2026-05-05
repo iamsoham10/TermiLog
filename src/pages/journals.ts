@@ -4,7 +4,6 @@ import { sidebarComponent } from "../components/sidebar";
 import { editorComponent } from "../components/editor";
 import { BaseLayout } from "../components/layout";
 import { journalSaveDialogComponent } from "../components/journalSaveDialog";
-import { journalInfoComponent } from "../components/journalInfo.ts";
 import saveJournalFile from "../saveJournal";
 import { toast } from "@opentui-ui/toast";
 import { footerComponent } from "../components/footer";
@@ -61,7 +60,9 @@ export function createJournalPage(renderer: RenderContext): Page {
     id: "journal",
     renderable: page,
     onEnter() {},
-    onLeave() {},
+    onLeave() {
+      sidebar.cleanup?.();
+    },
     onKeypress: (key) => {
       // when the dialog is visible
       if (fileSaverDialog.renderable.visible) {

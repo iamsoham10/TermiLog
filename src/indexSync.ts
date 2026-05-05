@@ -35,8 +35,8 @@ export const reconcileOnStartup = async () => {
       continue;
     }
   }
-  await writeJournalsIndex(journalIndex);
   await reconcileFileSystem();
+  await writeJournalsIndex(journalIndex);
 };
 
 // if a journal file is created externally sync it with index
@@ -54,14 +54,12 @@ const reconcileFileSystem = async () => {
 
   for (let file of mdJournalFiles) {
     if (!indexFile.has(file)) {
-      const metadata: JournalMetadata = {
+      journalIndex.journals.push({
         journalId: crypto.randomUUID(),
         title: file,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-      };
-      journalIndex.journals.push(metadata);
+      });
     }
   }
-  await writeJournalsIndex(journalIndex);
 };

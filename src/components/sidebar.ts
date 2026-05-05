@@ -8,6 +8,7 @@ import {
   type RenderContext,
 } from "@opentui/core";
 import { readJournalsIndex } from "../journalStorage";
+import { journalEvents, JournalEventType } from "../events/journalEvents";
 
 interface SideBarListItem {
   name: string;
@@ -15,8 +16,8 @@ interface SideBarListItem {
 }
 
 export function sidebarComponent(renderer: RenderContext) {
-  const journals = readJournalsIndex();
-  const sidebarList: SideBarListItem[] = journals.journals.map((j) => {
+  let journals = readJournalsIndex();
+  let sidebarList: SideBarListItem[] = journals.journals.map((j) => {
     return { name: j.title, description: j.journalId };
   });
   let selectedJournalIndex = 0;
@@ -52,6 +53,27 @@ export function sidebarComponent(renderer: RenderContext) {
     ),
   ) as BoxRenderable;
 
+  const refreshSidebar = () => {
+    // cleanUp function - call this when the page is destroyed/left
+    console.log("Sidebar refreshing...");
+    journals = readJournalsIndex();
+    sidebarList = journals.journals.map((j) => {
+      return { name: j.title, description: j.journalId };
+    });
+    selectedJournalIndex = 0;
+    (selectComponent as any).options = sidebarList;
+    console.log("Sidebar refreshed");
+  };
+
+  const unsubscribe = journalEvents.subscribe(
+    JournalEventType.INDEX_UPDATED,
+    () => {
+      refreshSidebar();
+    },
+  );
+
+  console.log("Sidebar component created and subscribed to events");
+
   selectComponent.on(
     SelectRenderableEvents.SELECTION_CHANGED,
     (index: number) => {
@@ -59,7 +81,7 @@ export function sidebarComponent(renderer: RenderContext) {
     },
   );
 
-  selectComponent.on(SelectRenderableEvents.ITEM_SELECTED, (index) => {
+  selectComponent.on(SelectRenderableEvents.ITEM_SELECTED, (index: number) => {
     console.log(`Journal ${index} selected`);
   });
 
@@ -67,7 +89,7 @@ export function sidebarComponent(renderer: RenderContext) {
     id: "sidebar",
     renderable: sidebar,
     selectComponent,
-    getSelectorIndex: () => journals.journals[selectedJournalIndex],
+    getSelectorIndex: () => journals.journals[selectedJournalIndex] ?? null,
     onKeypress: (key: KeyEvent) => {
       if (key.name === "enter") {
         return true;
@@ -77,6 +99,9 @@ export function sidebarComponent(renderer: RenderContext) {
     updateBorderColor: (focus: boolean) => {
       sidebar.borderColor = focus ? "#00FFFF" : "#696969";
     },
-    // refreshSidebar: listJournalFile(),
+    cleanup: () => {
+      console.log("Sidebar cleaning up");
+      unsubscribe();
+    },
   };
 }
