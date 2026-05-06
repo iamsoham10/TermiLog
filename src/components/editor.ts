@@ -9,6 +9,7 @@ import {
 } from "@opentui/core";
 import type { footerComponent } from "./footer";
 import { journalInfoComponent } from "./journalInfo";
+import { markdownRendererComponent } from "./markdownRenderer";
 
 const placeholders = [
   "How was your day?...",
@@ -30,6 +31,7 @@ export function editorComponent(
   footer: ReturnType<typeof footerComponent>,
 ) {
   const journalInfoBar = journalInfoComponent(renderer).renderable;
+  const markdown = markdownRendererComponent(renderer).renderable;
   const textEditor = new TextareaRenderable(renderer, {
     id: "editor-container",
     width: "100%",
@@ -41,6 +43,7 @@ export function editorComponent(
 
   const editorBox = Box(
     {
+      width: "50%",
       paddingTop: 2,
       paddingLeft: 3,
       paddingRight: 3,
@@ -64,7 +67,13 @@ export function editorComponent(
         backgroundColor: "#1a1a1a",
       },
       journalInfoBar,
-      editorBox,
+      Box(
+        {
+          flexDirection: "row",
+        },
+        editorBox,
+        markdown,
+      ),
     ),
   ) as BoxRenderable;
 
