@@ -7,7 +7,6 @@ import {
 } from "./journalStorage";
 import { statSync } from "fs";
 import { existsSync, readdirSync } from "node:fs";
-import type { JournalMetadata } from "./types/journal";
 
 // sync the index file with existing journals and remove deleted journals
 export const reconcileOnStartup = async () => {

@@ -43,10 +43,12 @@ export function editorComponent(
 
   const editorBox = Box(
     {
-      width: "50%",
-      paddingTop: 2,
-      paddingLeft: 3,
-      paddingRight: 3,
+      width: "70%",
+      paddingTop: 1,
+      paddingLeft: 1,
+      paddingRight: 2,
+      border: true,
+      borderColor: "#696969",
     },
     textEditor,
   );

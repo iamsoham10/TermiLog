@@ -15,7 +15,11 @@ interface SideBarListItem {
   description: string;
 }
 
-export function sidebarComponent(renderer: RenderContext) {
+export function sidebarComponent(
+  renderer: RenderContext,
+  options?: { onVisibilityChange?: (isVisible: boolean) => void },
+) {
+  let unsubscribe: (() => void) | null = null;
   let journals = readJournalsIndex();
   let sidebarList: SideBarListItem[] = journals.journals.map((j) => {
     return { name: j.title, description: j.journalId };
@@ -65,14 +69,34 @@ export function sidebarComponent(renderer: RenderContext) {
     console.log("Sidebar refreshed");
   };
 
-  const unsubscribe = journalEvents.subscribe(
-    JournalEventType.INDEX_UPDATED,
-    () => {
-      refreshSidebar();
-    },
-  );
+  // subscribe to INDEX_UPDATED event
+  // called when journal page becomes visible (onEnter)
+  // stores unsubscribe function so it can clean later
+  const setupSubscription = () => {
+    if (unsubscribe) {
+      console.log("sidebar already subscribed");
+      return;
+    }
+    unsubscribe = journalEvents.subscribe(
+      JournalEventType.INDEX_UPDATED,
+      () => {
+        refreshSidebar();
+      },
+    );
+    console.log("Sidebar subscribed to INDEX_UPDATED event");
+  };
 
-  console.log("Sidebar component created and subscribed to events");
+  // unsubscribe from INDEX_UPDATED event
+  // called when journal page becomes hidden (onLeave)
+  const tearDownSubscription = () => {
+    if (unsubscribe) {
+      unsubscribe();
+      unsubscribe = null;
+      console.log("sidebar unsubscribed from INDEX_UPDATED event");
+    }
+  };
+
+  console.log("sidebar component created (subscription deferred to onEnter)");
 
   selectComponent.on(
     SelectRenderableEvents.SELECTION_CHANGED,
@@ -99,9 +123,8 @@ export function sidebarComponent(renderer: RenderContext) {
     updateBorderColor: (focus: boolean) => {
       sidebar.borderColor = focus ? "#00FFFF" : "#696969";
     },
-    cleanup: () => {
-      console.log("Sidebar cleaning up");
-      unsubscribe();
-    },
+    refreshSidebar,
+    setupSubscription,
+    tearDownSubscription,
   };
 }

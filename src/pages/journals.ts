@@ -59,9 +59,13 @@ export function createJournalPage(renderer: RenderContext): Page {
   return {
     id: "journal",
     renderable: page,
-    onEnter() {},
+    onEnter() {
+      console.log("journal page onEnter called - sidebar subscribing");
+      sidebar.setupSubscription?.();
+    },
     onLeave() {
-      sidebar.cleanup?.();
+      console.log("journal page onLeave called - unsubscribing sidebar");
+      sidebar.tearDownSubscription?.();
     },
     onKeypress: (key) => {
       // when the dialog is visible
