@@ -1,4 +1,4 @@
-import { EventEmitter } from "./eventEmitter";
+import createEventBus from "./eventBus";
 
 export const JournalEventType = {
   INDEX_UPDATED: "journal:index-updated",
@@ -6,4 +6,4 @@ export const JournalEventType = {
   JOURNAL_DELETED: "journal:deleted",
 } as const;
 
-export const journalEvents = new EventEmitter();
+export const journalEvents = createEventBus();
