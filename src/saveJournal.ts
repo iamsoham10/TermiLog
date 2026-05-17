@@ -2,11 +2,8 @@ import { join } from "node:path";
 import { existsSync, mkdirSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import type { JournalMetadata } from "./types/journal";
-import {
-  readJournalsIndex,
-  TERMILOG_DIR,
-  writeJournalsIndex,
-} from "./journalStorage";
+import { readJournalsIndex, writeJournalsIndex } from "./journalStorage";
+import { TERMILOG_DIR } from "./utils/pathUtils";
 
 const ensureDirectoryExists = (): void => {
   if (!existsSync(TERMILOG_DIR)) {

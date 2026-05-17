@@ -8,6 +8,7 @@ import { createHomePage } from "./pages/home";
 import { createJournalPage } from "./pages/journals";
 import { ToasterRenderable } from "@opentui-ui/toast";
 import { reconcileOnStartup } from "./indexSync";
+import { EMOJI_ICONS } from "@opentui-ui/toast";
 
 const renderer = await createCliRenderer({
   exitOnCtrlC: true,
@@ -24,6 +25,7 @@ await reconcileOnStartup();
 // add toaster
 const toaster = new ToasterRenderable(renderer, {
   position: "top-right",
+  icons: EMOJI_ICONS,
 });
 
 renderer.root.add(toaster);
