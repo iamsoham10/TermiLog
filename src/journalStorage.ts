@@ -37,7 +37,7 @@ export const writeJournalsIndex = async (
   index: JournalsIndex,
 ): Promise<void> => {
   /*
-  This function is called twice in reconcile strategy or design puroposes
+  This function is called twice in reconcile strategy for design puroposes
   To avoid the event emission twice this check is implemented
   */
   try {

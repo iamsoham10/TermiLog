@@ -53,7 +53,8 @@ renderer.keyInput.on("keypress", (key) => {
     renderer.console.toggle();
   }
   if (key.name === "h") router.navigate("home");
-  if (key.name === "j") router.navigate("journal");
+  if (key.name === "j" && activePage?.id !== "journal")
+    router.navigate("journal");
   const focused = renderer.root.focused;
   if (key.name === "q" && !focused) renderer.destroy();
 });

@@ -96,8 +96,6 @@ export function sidebarComponent(
     }
   };
 
-  console.log("sidebar component created (subscription deferred to onEnter)");
-
   selectComponent.on(
     SelectRenderableEvents.SELECTION_CHANGED,
     (index: number) => {
