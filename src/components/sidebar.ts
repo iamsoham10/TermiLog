@@ -9,6 +9,7 @@ import {
 } from "@opentui/core";
 import { readJournalsIndex } from "../journalStorage";
 import { journalEvents, JournalEventType } from "../events/journalEvents";
+import { readJournalFile } from "../utils/readJournalFile";
 
 interface SideBarListItem {
   name: string;
@@ -103,8 +104,14 @@ export function sidebarComponent(
     },
   );
 
-  selectComponent.on(SelectRenderableEvents.ITEM_SELECTED, (index: number) => {
-    console.log(`Journal ${index} selected`);
+  selectComponent.on(SelectRenderableEvents.ITEM_SELECTED, async () => {
+    const selectedJournal = journals.journals[selectedJournalIndex];
+    if (!selectedJournal) return;
+    const journalContents = await readJournalFile(selectedJournal?.title);
+    journalEvents.emit(JournalEventType.JOURNAL_SELECTED, {
+      title: selectedJournal.title,
+      contents: journalContents,
+    });
   });
 
   return {
