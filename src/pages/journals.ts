@@ -7,6 +7,7 @@ import { journalSaveDialogComponent } from "../components/journalSaveDialog";
 import saveJournalFile from "../saveJournal";
 import { toast } from "@opentui-ui/toast";
 import { footerComponent } from "../components/footer";
+import { journalEvents, JournalEventType } from "../events/journalEvents";
 
 export function createJournalPage(renderer: RenderContext): Page {
   const footer = footerComponent(renderer);
@@ -15,6 +16,8 @@ export function createJournalPage(renderer: RenderContext): Page {
   const journalSelectorComponent = sidebar.selectComponent;
   const editor = editorComponent(renderer, footer);
   const editorRenderable = editor.renderable;
+  let unsubscribeEditor: (() => void) | null = null;
+
   const fileSaverDialog = journalSaveDialogComponent(renderer, {
     onSave: (journalName, mood) => {
       saveJournalFile(
@@ -56,16 +59,31 @@ export function createJournalPage(renderer: RenderContext): Page {
     sidebarSelector.visible = !sidebarSelector.visible;
   }
 
+  // journal-editor content load subscription
+  const editorSubscription = () => {
+    if (unsubscribeEditor) return;
+    unsubscribeEditor = journalEvents.subscribe(
+      JournalEventType.JOURNAL_SELECTED,
+      ({ title, contents }) => {
+        editor.setEditorContent(contents);
+        console.log("Journal loaded:", title);
+      },
+    );
+  };
+
   return {
     id: "journal",
     renderable: page,
     onEnter() {
       console.log("journal page onEnter called - sidebar subscribing");
       sidebar.setupSubscription?.();
+      editorSubscription();
     },
     onLeave() {
       console.log("journal page onLeave called - unsubscribing sidebar");
       sidebar.tearDownSubscription?.();
+      unsubscribeEditor?.();
+      unsubscribeEditor = null;
     },
     onKeypress: (key) => {
       // when the dialog is visible
@@ -109,7 +127,6 @@ export function createJournalPage(renderer: RenderContext): Page {
       if (key.name === "i" && journalSelectorComponent.focused) {
         journalSelectorComponent.blur();
         sidebar.updateBorderColor(false);
-        footer.setEditorMode(false);
       }
       if (editor?.onKeypress?.(key)) return true;
       if (key.ctrl && key.name === "s") {

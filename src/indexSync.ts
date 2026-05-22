@@ -1,12 +1,9 @@
 import { join } from "node:path";
 import path from "path";
-import {
-  readJournalsIndex,
-  TERMILOG_DIR,
-  writeJournalsIndex,
-} from "./journalStorage";
+import { readJournalsIndex, writeJournalsIndex } from "./journalStorage";
 import { statSync } from "fs";
 import { existsSync, readdirSync } from "node:fs";
+import { TERMILOG_DIR } from "./utils/pathUtils";
 
 // sync the index file with existing journals and remove deleted journals
 export const reconcileOnStartup = async () => {

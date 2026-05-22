@@ -10,6 +10,7 @@ import {
 import type { footerComponent } from "./footer";
 import { journalInfoComponent } from "./journalInfo";
 import { markdownRendererComponent } from "./markdownRenderer";
+import { toast } from "@opentui-ui/toast";
 
 const placeholders = [
   "How was your day?...",
@@ -44,9 +45,12 @@ export function editorComponent(
   const editorBox = Box(
     {
       width: "70%",
+      height: "100%",
+      overflow: "hidden",
       paddingTop: 1,
       paddingLeft: 1,
       paddingRight: 2,
+      paddingBottom: 1,
       border: true,
       borderColor: "#696969",
     },
@@ -79,6 +83,10 @@ export function editorComponent(
     ),
   ) as BoxRenderable;
 
+  function clearEditorContent() {
+    textEditor.clear();
+  }
+
   return {
     id: "editor",
     renderable: editorContainer,
@@ -108,5 +116,10 @@ export function editorComponent(
       return false;
     },
     getEditorContent: () => textEditor.plainText,
+    setEditorContent: (content: string) => {
+      clearEditorContent();
+      textEditor.setText(content);
+      toast.info("Journal loaded");
+    },
   };
 }

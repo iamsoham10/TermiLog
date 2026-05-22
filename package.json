@@ -15,6 +15,7 @@
   "dependencies": {
     "@opentui-ui/dialog": "^0.1.2",
     "@opentui-ui/toast": "^0.0.5",
-    "@opentui/core": "^0.1.77"
+    "@opentui/core": "^0.1.77",
+    "mitt": "^3.0.1"
   }
 }

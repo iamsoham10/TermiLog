@@ -8,6 +8,7 @@ import { createHomePage } from "./pages/home";
 import { createJournalPage } from "./pages/journals";
 import { ToasterRenderable } from "@opentui-ui/toast";
 import { reconcileOnStartup } from "./indexSync";
+import { EMOJI_ICONS } from "@opentui-ui/toast";
 
 const renderer = await createCliRenderer({
   exitOnCtrlC: true,
@@ -24,6 +25,7 @@ await reconcileOnStartup();
 // add toaster
 const toaster = new ToasterRenderable(renderer, {
   position: "top-right",
+  icons: EMOJI_ICONS,
 });
 
 renderer.root.add(toaster);
@@ -51,7 +53,8 @@ renderer.keyInput.on("keypress", (key) => {
     renderer.console.toggle();
   }
   if (key.name === "h") router.navigate("home");
-  if (key.name === "j") router.navigate("journal");
+  if (key.name === "j" && activePage?.id !== "journal")
+    router.navigate("journal");
   const focused = renderer.root.focused;
   if (key.name === "q" && !focused) renderer.destroy();
 });

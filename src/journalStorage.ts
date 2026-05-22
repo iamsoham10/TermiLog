@@ -1,17 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
-import { homedir } from "node:os";
-import { join } from "node:path";
 import type { JournalsIndex } from "./types/journal";
 import { writeFile } from "node:fs/promises";
 import { journalEvents, JournalEventType } from "./events/journalEvents";
-
-export const TERMILOG_DIR = join(homedir(), "Termilog");
-const JOURNAL_INDEX_PATH = join(
-  homedir(),
-  "AppData/Roaming",
-  ".termilog",
-  "index.json",
-);
+import { JOURNAL_INDEX_PATH } from "./utils/pathUtils";
 
 export const readJournalNamesFromIndex = (): string[] => {
   try {
@@ -46,7 +37,7 @@ export const writeJournalsIndex = async (
   index: JournalsIndex,
 ): Promise<void> => {
   /*
-  This function is called twice in reconcile strategy or design puroposes
+  This function is called twice in reconcile strategy for design puroposes
   To avoid the event emission twice this check is implemented
   */
   try {
