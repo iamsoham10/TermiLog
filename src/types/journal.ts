@@ -6,6 +6,10 @@ export interface JournalMetadata {
   updatedAt: string;
 }
 
+export interface Journal extends JournalMetadata {
+  content: string;
+}
+
 export interface JournalsIndex {
   journals: JournalMetadata[];
 }
