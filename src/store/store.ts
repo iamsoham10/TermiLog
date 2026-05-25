@@ -14,6 +14,7 @@ type ActionType =
   | "JOURNAL_SELECTED"
   | "JOURNAL_SAVED"
   | "JOURNAL_LOADED"
+  | "JOURNAL_DELETED"
   | "EDITOR_CONTENT_CHANGED"
   | "SAVE_ERROR"
   | "FOCUS_CHANGED"
@@ -24,6 +25,7 @@ type ActionPayloads = {
   JOURNAL_SELECTED: string;
   JOURNAL_SAVED: JournalMetadata;
   JOURNAL_LOADED: JournalMetadata;
+  JOURNAL_DELETED: string;
   EDITOR_CONTENT_CHANGED: string;
   SAVE_ERROR: string;
   FOCUS_CHANGED: "editor" | "sidebar" | "dialog" | null;
@@ -74,6 +76,10 @@ export function createStore() {
       case "JOURNAL_LOADED":
         newState.currentJournal = payload;
         newState.editorContent = payload.content;
+        break;
+
+      case "JOURNAL_DELETED":
+        newState.editorContent = payload;
         break;
 
       case "EDITOR_CONTENT_CHANGED":
