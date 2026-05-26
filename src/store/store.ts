@@ -79,7 +79,8 @@ export function createStore() {
         break;
 
       case "JOURNAL_DELETED":
-        newState.editorContent = payload;
+        newState.currentJournal = null;
+        newState.editorContent = "";
         break;
 
       case "EDITOR_CONTENT_CHANGED":
