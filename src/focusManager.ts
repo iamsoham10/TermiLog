@@ -25,7 +25,9 @@ export function createFocusManager() {
 
   // register component - called during page creation
   function registerComponent(component: ComponentDefintion): void {
-    components.set(component.id, component);
+    if (!components.has(component.id)) {
+      components.set(component.id, component);
+    }
 
     if (!focusOrder.includes(component.id)) {
       focusOrder.push(component.id);
@@ -74,10 +76,8 @@ export function createFocusManager() {
     setFocusedComponent(focusOrder[nextIndex]!);
   }
 
-  /**
-   * Focus previous component (Shift+Tab key)
-   * Rotates backwards through focusOrder array circularly
-   */
+  // Focus previous component (Shift+Tab key)
+  // Rotates backwards through focusOrder array circularly
   function focusPrevious(): void {
     if (focusOrder.length === 0) return;
     const currentIndex = focusOrder.indexOf(focusedComponentId);
@@ -89,4 +89,61 @@ export function createFocusManager() {
 
     setFocusedComponent(focusOrder[prevIndex]!);
   }
+
+  // Route a keypress event
+  /*
+  check for tab/shift+tab navigation
+  route to focused component's keyhandlers
+  return whether key was handled
+  */
+  function routeKeypress(key: KeyEvent): boolean {
+    // handle special case
+    if (key.name === "tab") {
+      if (key.shift) {
+        focusPrevious();
+      } else {
+        focusNext();
+      }
+      return false;
+    }
+
+    const component = getFocusedComponentDef();
+    if (!component) {
+      console.warn(`[FocusManager] no focused component`);
+      return false;
+    }
+
+    const keyName = buildKeyName(key);
+
+    console.log(`[FocusManager] routing key ${keyName} to ${component?.id}`);
+
+    const handler = component?.keyHandlers.get(keyName);
+    if (handler) {
+      return handler(key);
+    }
+    return false;
+  }
+
+  // Build a standardized key name from KeyEvent
+  // ex. - {name: s, ctrl: true} - "ctrl+s"
+  function buildKeyName(key: KeyEvent): string {
+    const parts: string[] = [];
+
+    if (key.ctrl) parts.push("ctrl");
+    if (key.shift && key.name !== "tab") parts.push("shift");
+    if (key.name === "alt") parts.push("alt");
+
+    parts.push(key.name);
+
+    return parts.join("+");
+  }
+
+  return {
+    registerComponent,
+    setFocusedComponent,
+    getFocusedComponent,
+    routeKeypress,
+    focusNext,
+    focusPrevious,
+  };
 }
