@@ -97,24 +97,26 @@ export function editorComponent(
       editorContainer.borderColor = RGBA.fromHex("#696969");
       footer.setEditorMode(false);
     },
-    onKeypress: (key: KeyEvent) => {
-      if (key.name == "i") {
-        queueMicrotask(() => textEditor.focus());
-        editorContainer.borderColor = RGBA.fromHex("#00FFFF");
-        footer.setEditorMode(true);
-        return true;
-      }
-      if (textEditor.focused) {
-        if (key.name == "escape") {
+    keyHandlers: new Map([
+      [
+        "i",
+        (key: KeyEvent) => {
+          queueMicrotask(() => textEditor.focus());
+          editorContainer.borderColor = RGBA.fromHex("#00FFFF");
+          footer.setEditorMode(true);
+          return true;
+        },
+      ],
+      [
+        "escape",
+        (key) => {
           textEditor.blur();
           editorContainer.borderColor = RGBA.fromHex("#696969");
           footer.setEditorMode(false);
           return true;
-        }
-        return true;
-      }
-      return false;
-    },
+        },
+      ],
+    ]),
     getEditorContent: () => textEditor.plainText,
     setEditorContent: (content: string) => {
       clearEditorContent();

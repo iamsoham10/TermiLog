@@ -19,7 +19,7 @@ export interface ComponentDefintion {
 }
 
 export function createFocusManager() {
-  let focusedComponentId: string = "editor";
+  let focusedComponentId: string = "";
   const components = new Map<string, ComponentDefintion>();
   let focusOrder: string[] = [];
 
@@ -115,6 +115,7 @@ export function createFocusManager() {
 
     const keyName = buildKeyName(key);
 
+    console.log(`[FocusManager] focused component: ${component.id}`);
     console.log(`[FocusManager] routing key ${keyName} to ${component?.id}`);
 
     const handler = component?.keyHandlers.get(keyName);

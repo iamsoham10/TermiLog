@@ -1,8 +1,11 @@
 import {
   Box,
+  BoxRenderable,
   InputRenderable,
   InputRenderableEvents,
   instantiate,
+  KeyEvent,
+  KeyHandler,
   SelectRenderable,
   SelectRenderableEvents,
   Text,
@@ -156,9 +159,46 @@ export function journalSaveDialogComponent(
       ),
     ),
   );
+  function closeDialog() {
+    saveDialog.visible = false;
+    // saveDialog.blurInput();
+    // fileSaverDialog.resetInput();
+  }
   return {
     id: "save journal dialog",
     renderable: saveDialog,
+    keyHandlers: new Map([
+      [
+        "ctrl+s",
+        (key: KeyEvent) => {
+          saveDialog.visible = true;
+          journalNameInput.focus();
+          return true;
+        },
+      ],
+      [
+        "escape",
+        (key: KeyEvent) => {
+          saveDialog.visible = false;
+          journalNameInput.blur();
+          journalNameInput.value = "";
+          journalNameInput.placeholder = "journal name...";
+          journalNameInput.placeholderColor = "#6E6E6E";
+          return true;
+        },
+      ],
+      [
+        "m",
+        (key: KeyEvent) => {
+          if (journalNameInput.focused) {
+            moodSelector.focus();
+          } else {
+            queueMicrotask(() => journalNameInput.focus());
+          }
+          return true;
+        },
+      ],
+    ]),
     getInputContent: () => journalNameInput.plainText,
     getSelectedMood,
     focusInput: () => journalNameInput.focus(),

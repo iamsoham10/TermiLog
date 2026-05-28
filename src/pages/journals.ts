@@ -8,8 +8,10 @@ import saveJournalFile from "../saveJournal";
 import { toast } from "@opentui-ui/toast";
 import { footerComponent } from "../components/footer";
 import { journalEvents, JournalEventType } from "../events/journalEvents";
+import { createFocusManager } from "../focusManager";
 
 export function createJournalPage(renderer: RenderContext): Page {
+  const focusManager = createFocusManager();
   const footer = footerComponent(renderer);
   const sidebar = sidebarComponent(renderer);
   const sidebarSelector = sidebar.renderable;
@@ -17,6 +19,8 @@ export function createJournalPage(renderer: RenderContext): Page {
   const editor = editorComponent(renderer, footer);
   const editorRenderable = editor.renderable;
   let unsubscribeEditor: (() => void) | null = null;
+
+  focusManager.registerComponent(editor);
 
   const fileSaverDialog = journalSaveDialogComponent(renderer, {
     onSave: (journalName, mood) => {
@@ -35,6 +39,7 @@ export function createJournalPage(renderer: RenderContext): Page {
     fileSaverDialog.resetInput();
   }
   fileSaverDialog.renderable.visible = false;
+  focusManager.registerComponent(fileSaverDialog);
 
   const content = Box(
     {
@@ -87,58 +92,57 @@ export function createJournalPage(renderer: RenderContext): Page {
     },
     onKeypress: (key) => {
       // when the dialog is visible
-      if (fileSaverDialog.renderable.visible) {
-        if (key.name === "escape") {
-          closeDialog();
-          return true;
-        }
-        if (key.name === "tab") {
-          if (fileSaverDialog.isInputFocused()) {
-            fileSaverDialog.focusMoods();
-          } else {
-            fileSaverDialog.focusInput();
-          }
-        }
-        return true;
-      }
-      if (key.name === "tab") {
-        if (editor.isTextEditorFocused()) {
-          // if editor is focused, blur it
-          editor.blurEditor();
-          journalSelectorComponent.focus();
-          sidebar.updateBorderColor(true);
-          footer.setSidebarMode(true);
-          return true;
-        }
-        // if sidebar is focused, blur it
-        if (journalSelectorComponent.focused) {
-          journalSelectorComponent.blur();
-          sidebar.updateBorderColor(false);
-          footer.setSidebarMode(false);
-          return true;
-        }
-        // if neither is focused, focus sidebar
-        journalSelectorComponent.focus();
-        sidebar.updateBorderColor(true);
-        footer.setSidebarMode(true);
-        return true;
-      }
+      // if (fileSaverDialog.renderable.visible) {
+      //   if (key.name === "escape") {
+      //     closeDialog();
+      //     return true;
+      //   }
+      //   if (key.name === "tab") {
+      //     if (fileSaverDialog.isInputFocused()) {
+      //       fileSaverDialog.focusMoods();
+      //     } else {
+      //       fileSaverDialog.focusInput();
+      //     }
+      //   }
+      //   return true;
+      // }
+      // if (key.name === "tab") {
+      //   if (editor.isTextEditorFocused()) {
+      //     // if editor is focused, blur it
+      //     editor.blurEditor();
+      //     journalSelectorComponent.focus();
+      //     sidebar.updateBorderColor(true);
+      //     footer.setSidebarMode(true);
+      //     return true;
+      //   }
+      //   // if sidebar is focused, blur it
+      //   if (journalSelectorComponent.focused) {
+      //     journalSelectorComponent.blur();
+      //     sidebar.updateBorderColor(false);
+      //     footer.setSidebarMode(false);
+      //     return true;
+      //   }
+      //   // if neither is focused, focus sidebar
+      //   journalSelectorComponent.focus();
+      //   sidebar.updateBorderColor(true);
+      //   footer.setSidebarMode(true);
+      //   return true;
+      // }
       if (sidebarSelector.focused && sidebar.onKeypress?.(key)) return true;
       if (key.name === "i" && journalSelectorComponent.focused) {
         journalSelectorComponent.blur();
         sidebar.updateBorderColor(false);
       }
-      if (editor?.onKeypress?.(key)) return true;
-      if (key.ctrl && key.name === "s") {
-        fileSaverDialog.renderable.visible = true;
-        fileSaverDialog.focusInput();
-        return true;
-      }
+      // if (key.ctrl && key.name === "s") {
+      //   fileSaverDialog.renderable.visible = true;
+      //   fileSaverDialog.focusInput();
+      //   return true;
+      // }
       if (key.ctrl && key.name === "b") {
         toggleSidebar();
         return true;
       }
-      return false;
+      return focusManager.routeKeypress(key);
     },
   };
 }
