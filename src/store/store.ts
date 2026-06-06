@@ -1,4 +1,4 @@
-import type { JournalMetadata } from "../types/journal";
+import type { Journal, JournalMetadata } from "../types/journal";
 
 interface AppState {
   journals: JournalMetadata[];
@@ -24,7 +24,7 @@ type ActionType =
 type ActionPayloads = {
   JOURNAL_SELECTED: string;
   JOURNAL_SAVED: JournalMetadata;
-  JOURNAL_LOADED: JournalMetadata;
+  JOURNAL_LOADED: Journal;
   JOURNAL_DELETED: string;
   EDITOR_CONTENT_CHANGED: string;
   SAVE_ERROR: string;

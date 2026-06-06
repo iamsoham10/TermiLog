@@ -1,4 +1,4 @@
-import { KeyEvent } from "@opentui/core";
+import { KeyEvent, Renderable } from "@opentui/core";
 
 /*
 FocusManager - Keyboard Routing
@@ -11,8 +11,9 @@ Manages:
 Component register themselves and declare their keyHandlers map
 */
 
-export interface ComponentDefintion {
+export interface ComponentDefinition {
   id: string;
+  renderable: Renderable;
   keyHandlers: Map<string, (key: KeyEvent) => boolean>;
   onEnter?: () => void;
   onLeave?: () => void;
@@ -20,11 +21,11 @@ export interface ComponentDefintion {
 
 export function createFocusManager() {
   let focusedComponentId: string = "";
-  const components = new Map<string, ComponentDefintion>();
+  const components = new Map<string, ComponentDefinition>();
   let focusOrder: string[] = [];
 
   // register component - called during page creation
-  function registerComponent(component: ComponentDefintion): void {
+  function registerComponent(component: ComponentDefinition): void {
     if (!components.has(component.id)) {
       components.set(component.id, component);
     }
@@ -64,7 +65,7 @@ export function createFocusManager() {
   }
 
   // get currently focused component definition
-  function getFocusedComponentDef(): ComponentDefintion | undefined {
+  function getFocusedComponentDef(): ComponentDefinition | undefined {
     return components.get(focusedComponentId);
   }
 
@@ -148,3 +149,5 @@ export function createFocusManager() {
     focusPrevious,
   };
 }
+
+export type FocusManager = ReturnType<typeof createFocusManager>;

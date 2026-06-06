@@ -7,10 +7,11 @@ import {
   TextareaRenderable,
   type RenderContext,
 } from "@opentui/core";
-import type { footerComponent } from "./footer";
 import { journalInfoComponent } from "./journalInfo";
 import { markdownRendererComponent } from "./markdownRenderer";
 import { toast } from "@opentui-ui/toast";
+import type { Store } from "../store/store";
+import type { ComponentDefinition } from "../focusManager";
 
 const placeholders = [
   "How was your day?...",
@@ -29,10 +30,13 @@ const currentPlaceholder =
 
 export function editorComponent(
   renderer: RenderContext,
-  footer: ReturnType<typeof footerComponent>,
-) {
+  store: Store,
+): ComponentDefinition {
+  let unsubscribers: Array<() => void> = [];
+
   const journalInfoBar = journalInfoComponent(renderer).renderable;
   const markdown = markdownRendererComponent(renderer).renderable;
+
   const textEditor = new TextareaRenderable(renderer, {
     id: "editor-container",
     width: "100%",
@@ -87,41 +91,69 @@ export function editorComponent(
     textEditor.clear();
   }
 
+  function updateBorderColor(isFocused: boolean): void {
+    editorContainer.borderColor = isFocused
+      ? RGBA.fromHex("#00FFFF")
+      : RGBA.fromHex("#696969");
+  }
+
   return {
     id: "editor",
     renderable: editorContainer,
-    textEditor,
-    isTextEditorFocused: () => textEditor.focused,
-    blurEditor: () => {
-      textEditor.blur();
-      editorContainer.borderColor = RGBA.fromHex("#696969");
-      footer.setEditorMode(false);
-    },
     keyHandlers: new Map([
       [
         "i",
         (key: KeyEvent) => {
           queueMicrotask(() => textEditor.focus());
-          editorContainer.borderColor = RGBA.fromHex("#00FFFF");
-          footer.setEditorMode(true);
+          updateBorderColor(true);
+          store.dispatch("FOCUS_CHANGED", "editor");
           return true;
         },
       ],
       [
         "escape",
-        (key) => {
+        (key: KeyEvent) => {
           textEditor.blur();
-          editorContainer.borderColor = RGBA.fromHex("#696969");
-          footer.setEditorMode(false);
+          updateBorderColor(false);
+          store.dispatch("FOCUS_CHANGED", null);
           return true;
         },
       ],
     ]),
-    getEditorContent: () => textEditor.plainText,
-    setEditorContent: (content: string) => {
-      clearEditorContent();
-      textEditor.setText(content);
-      toast.info("Journal loaded");
+    onEnter: () => {
+      console.log("[Editor] entered (setting up subscriptions)");
+
+      // subscribe to journal loads
+      const unsubJournal = store.subscribe("JOURNAL_LOADED", (payload) => {
+        console.log("[Editor] journal loaded, updating content");
+        clearEditorContent();
+        textEditor.setText(payload.content || "");
+        textEditor.focus();
+        updateBorderColor(true);
+      });
+
+      const unsubSelect = store.subscribe("JOURNAL_SELECTED", () => {
+        // clear the editor for now (it will be changed later)
+        // when new journal is selected check if the editor has some text
+        // check whether that text is saved in a journal or not
+        // if not then before loading the new journal show a dialog to user as warning to whether save the content or not
+        // after user action, load the selected journal
+        clearEditorContent(); // for testing purpose, will be removed
+      });
+
+      const unsubSave = store.subscribe("JOURNAL_SAVED", () => {
+        console.log("[Editor] journal saved");
+        textEditor.blur();
+        updateBorderColor(false);
+      });
+
+      unsubscribers = [unsubJournal, unsubSelect, unsubSave];
+    },
+    onLeave: () => {
+      // unsubcribe (cleanup)
+      console.log("[Editor] leaving");
+      unsubscribers.forEach((unsub) => unsub());
+      unsubscribers = [];
     },
   };
 }
