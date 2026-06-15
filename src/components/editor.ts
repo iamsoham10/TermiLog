@@ -9,7 +9,6 @@ import {
 } from "@opentui/core";
 import { journalInfoComponent } from "./journalInfo";
 import { markdownRendererComponent } from "./markdownRenderer";
-import { toast } from "@opentui-ui/toast";
 import type { Store } from "../store/store";
 import type { ComponentDefinition } from "../focusManager";
 

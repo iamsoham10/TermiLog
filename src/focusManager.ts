@@ -14,7 +14,9 @@ Component register themselves and declare their keyHandlers map
 export interface ComponentDefinition {
   id: string;
   renderable: Renderable;
-  keyHandlers: Map<string, (key: KeyEvent) => boolean>;
+  keyHandlers:
+    | Map<string, (key: KeyEvent) => boolean>
+    | Map<string, (key: KeyEvent) => Promise<boolean>>;
   onEnter?: () => void;
   onLeave?: () => void;
 }

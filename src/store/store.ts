@@ -19,7 +19,8 @@ type ActionType =
   | "SAVE_ERROR"
   | "FOCUS_CHANGED"
   | "DIALOG_OPENED"
-  | "DIALOG_CLOSED";
+  | "DIALOG_CLOSED"
+  | "JOURNALS_RELOADED";
 
 type ActionPayloads = {
   JOURNAL_SELECTED: string;
@@ -31,6 +32,7 @@ type ActionPayloads = {
   FOCUS_CHANGED: "editor" | "sidebar" | "dialog" | null;
   DIALOG_OPENED: void;
   DIALOG_CLOSED: void;
+  JOURNALS_RELOADED: JournalMetadata[];
 };
 
 type UnsubscribeFn = () => void;
@@ -105,6 +107,10 @@ export function createStore() {
 
       case "DIALOG_CLOSED":
         newState.dialogOpen = false;
+        break;
+
+      case "JOURNALS_RELOADED":
+        newState.journals = payload;
         break;
 
       default:

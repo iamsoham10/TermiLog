@@ -3,13 +3,15 @@ import {
   BoxRenderable,
   instantiate,
   KeyEvent,
+  RGBA,
   Select,
   SelectRenderableEvents,
   type RenderContext,
 } from "@opentui/core";
-import { readJournalsIndex } from "../journalStorage";
-import { journalEvents, JournalEventType } from "../events/journalEvents";
-import { readJournalFile } from "../utils/readJournalFile";
+import type { Store } from "../store/store";
+import type { JournalService } from "../journalService";
+import type { ComponentDefinition } from "../focusManager";
+import type { JournalMetadata } from "../types/journal";
 
 interface SideBarListItem {
   name: string;
@@ -18,14 +20,15 @@ interface SideBarListItem {
 
 export function sidebarComponent(
   renderer: RenderContext,
-  options?: { onVisibilityChange?: (isVisible: boolean) => void },
-) {
-  let unsubscribe: (() => void) | null = null;
-  let journals = readJournalsIndex();
-  let sidebarList: SideBarListItem[] = journals.journals.map((j) => {
-    return { name: j.title, description: j.journalId };
-  });
-  let selectedJournalIndex = 0;
+  store: Store,
+  service: JournalService,
+): ComponentDefinition {
+  let unsubscribers: Array<() => void> = [];
+  let journals: JournalMetadata[] = [];
+  let selectedIndex = 0;
+
+  let sidebarList: SideBarListItem[] = [];
+
   const selectComponent = instantiate(
     renderer,
     Select({
@@ -58,78 +61,83 @@ export function sidebarComponent(
     ),
   ) as BoxRenderable;
 
-  const refreshSidebar = () => {
-    // cleanUp function - call this when the page is destroyed/left
-    console.log("Sidebar refreshing...");
-    journals = readJournalsIndex();
-    sidebarList = journals.journals.map((j) => {
-      return { name: j.title, description: j.journalId };
-    });
-    selectedJournalIndex = 0;
+  // update the list UI with current journals
+  function updateList(journalList: JournalMetadata[]): void {
+    journals = journalList;
+    sidebarList = journalList.map((journal) => ({
+      name: journal.title,
+      description: journal.mood || "",
+    }));
     (selectComponent as any).options = sidebarList;
-    console.log("Sidebar refreshed");
-  };
+    selectedIndex = 0;
+    console.log("[Sidebar] list updated with", journalList.length, "journals");
+  }
 
-  // subscribe to INDEX_UPDATED event
-  // called when journal page becomes visible (onEnter)
-  // stores unsubscribe function so it can clean later
-  const setupSubscription = () => {
-    if (unsubscribe) {
-      console.log("sidebar already subscribed");
+  // update the border color based on focus
+  function updateBorderColor(isFocused: boolean): void {
+    sidebar.borderColor = isFocused
+      ? RGBA.fromHex("#00FFFF")
+      : RGBA.fromHex("#696969");
+  }
+
+  // select the currently highlighted journal
+  async function selectJournal(): Promise<void> {
+    const selectedJournal = journals[selectedIndex];
+    if (!selectedJournal) {
+      console.warn("[Sidebar] no journal selected");
       return;
     }
-    unsubscribe = journalEvents.subscribe(
-      JournalEventType.INDEX_UPDATED,
-      () => {
-        refreshSidebar();
-      },
-    );
-    console.log("Sidebar subscribed to INDEX_UPDATED event");
-  };
+    console.log("[Sidebar] loading journal:", selectedJournal);
 
-  // unsubscribe from INDEX_UPDATED event
-  // called when journal page becomes hidden (onLeave)
-  const tearDownSubscription = () => {
-    if (unsubscribe) {
-      unsubscribe();
-      unsubscribe = null;
-      console.log("sidebar unsubscribed from INDEX_UPDATED event");
+    // call service to load journal
+    const result = await service.loadJournal(selectedJournal.title);
+
+    if (!result.success) {
+      console.error("[Sidebar] failed to load journal:", result.message);
+      return;
     }
-  };
+  }
 
   selectComponent.on(
     SelectRenderableEvents.SELECTION_CHANGED,
     (index: number) => {
-      selectedJournalIndex = index;
+      selectedIndex = index;
+      console.log("[Sidebar] selection changed to index:", index);
     },
   );
-
-  selectComponent.on(SelectRenderableEvents.ITEM_SELECTED, async () => {
-    const selectedJournal = journals.journals[selectedJournalIndex];
-    if (!selectedJournal) return;
-    const journalContents = await readJournalFile(selectedJournal?.title);
-    journalEvents.emit(JournalEventType.JOURNAL_SELECTED, {
-      title: selectedJournal.title,
-      contents: journalContents,
-    });
-  });
 
   return {
     id: "sidebar",
     renderable: sidebar,
-    selectComponent,
-    getSelectorIndex: () => journals.journals[selectedJournalIndex] ?? null,
-    onKeypress: (key: KeyEvent) => {
-      if (key.name === "enter") {
-        return true;
-      }
-      return true;
+    keyHandlers: new Map([
+      [
+        "enter",
+        async (key: KeyEvent) => {
+          await selectJournal();
+          return true;
+        },
+      ],
+    ]),
+    onEnter: async () => {
+      console.log("[Sidebar] loading journals");
+      const unsubReload = store.subscribe("JOURNALS_RELOADED", (index) => {
+        console.log("[Sidebar] journals reloaded");
+      });
+
+      const unsubFocus = store.subscribe("FOCUS_CHANGED", (focusId) => {
+        updateBorderColor(focusId === "sidebar");
+      });
+
+      const journals = await service.listJournals();
+      updateList(journals);
+
+      unsubscribers = [unsubReload, unsubFocus];
     },
-    updateBorderColor: (focus: boolean) => {
-      sidebar.borderColor = focus ? "#00FFFF" : "#696969";
+
+    onLeave: () => {
+      console.log("[Sidebar] leaving");
+      unsubscribers.forEach((unsub) => unsub());
+      unsubscribers = [];
     },
-    refreshSidebar,
-    setupSubscription,
-    tearDownSubscription,
   };
 }
