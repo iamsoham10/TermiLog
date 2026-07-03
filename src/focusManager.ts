@@ -15,8 +15,9 @@ export interface ComponentDefinition {
   id: string;
   renderable: Renderable;
   keyHandlers:
-    | Map<string, (key: KeyEvent) => boolean>
-    | Map<string, (key: KeyEvent) => Promise<boolean>>;
+  | Map<string, (key: KeyEvent) => boolean>
+  | Map<string, (key: KeyEvent) => Promise<boolean>>
+  | boolean;
   onEnter?: () => void;
   onLeave?: () => void;
 }
@@ -99,7 +100,7 @@ export function createFocusManager() {
   route to focused component's keyhandlers
   return whether key was handled
   */
-  function routeKeypress(key: KeyEvent): boolean {
+  function routeKeypress(key: KeyEvent): Promise<boolean> | boolean {
     // handle special case
     if (key.name === "tab") {
       if (key.shift) {
@@ -121,9 +122,12 @@ export function createFocusManager() {
     console.log(`[FocusManager] focused component: ${component.id}`);
     console.log(`[FocusManager] routing key ${keyName} to ${component?.id}`);
 
-    const handler = component?.keyHandlers.get(keyName);
-    if (handler) {
-      return handler(key);
+    const handlers = component?.keyHandlers;
+    if (handlers instanceof Map) {
+      const handler = handlers.get(keyName);
+      if (handler) {
+        return handler(key);
+      }
     }
     return false;
   }
