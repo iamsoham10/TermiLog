@@ -1,23 +1,28 @@
 import {
   Box,
-  BoxRenderable,
   InputRenderable,
-  InputRenderableEvents,
   instantiate,
   KeyEvent,
-  KeyHandler,
   SelectRenderable,
   SelectRenderableEvents,
   Text,
   type RenderContext,
 } from "@opentui/core";
+import type { Store } from "../store/store";
+import type { JournalService } from "../journalService";
+import type { ComponentDefinition } from "../focusManager";
+import { toast } from "@opentui-ui/toast";
+
 
 export function journalSaveDialogComponent(
   renderer: RenderContext,
-  callback: {
-    onSave: (journalName: string, mood: string) => void;
-  },
-) {
+  store: Store,
+  service: JournalService
+): ComponentDefinition {
+
+  let unsubscribers: Array<() => void> = [];
+  let isInputFocused = true;
+
   const journalNameInput = new InputRenderable(renderer, {
     textColor: "#FFFFFF",
     placeholder: "journal name...",
@@ -34,6 +39,7 @@ export function journalSaveDialogComponent(
   ];
 
   let currentMoodIndex = 0;
+
   const moodSelector = new SelectRenderable(renderer, {
     showDescription: false,
     height: 5,
@@ -50,14 +56,63 @@ export function journalSaveDialogComponent(
     return moodOptions[currentMoodIndex]?.value ?? "neutral";
   };
 
-  journalNameInput.on(InputRenderableEvents.ENTER, (journalName: string) => {
-    if (!journalName || journalName.trim() === "") {
-      journalNameInput.placeholder = "required...";
-      journalNameInput.placeholderColor = "#F54927";
+  function resetInput(): void {
+    journalNameInput.value = "";
+    journalNameInput.placeholder = "journal name...";
+    journalNameInput.placeholderColor = "#6E6E6E";
+    currentMoodIndex = 0;
+    moodSelector.selectedIndex = 0;
+  }
+
+  function closeDialog() {
+    saveDialog.visible = false;
+    journalNameInput.blur();
+    moodSelector.blur();
+    resetInput();
+    store.dispatch("DIALOG_CLOSED");
+  }
+
+  function showErrorMessage(message: string): void {
+    journalNameInput.placeholder = message;
+    journalNameInput.placeholderColor = "#F54927";
+  }
+
+  function toggleFocus(): void {
+    if (isInputFocused) {
+      journalNameInput.blur();
+      moodSelector.focus();
+      isInputFocused = false;
+    } else {
+      moodSelector.blur();
+      journalNameInput.focus();
+      isInputFocused = true;
+    }
+  }
+
+  async function saveJournal(): Promise<void> {
+    const name = journalNameInput.value;
+    const mood = getSelectedMood();
+
+    const state = store.getState();
+    const content = state.editorContent;
+
+    if (!name || name.trim() == '') {
+      showErrorMessage("Title required...");
       return;
     }
-    callback.onSave(journalName, getSelectedMood());
-  });
+
+    console.log("[Dialog] Saving journal:", name);
+
+    const result = await service.saveJournal(name, content, mood);
+
+    if (result.success) {
+      console.log("[Dialog] Save successful");
+      toast.success(`Journal "${name}" saved successfully`);
+      closeDialog();
+    } else {
+      console.error("[Dialog] Save failed:", result.message);
+    }
+  }
 
   const saveDialog = instantiate(
     renderer,
@@ -159,57 +214,65 @@ export function journalSaveDialogComponent(
       ),
     ),
   );
-  function closeDialog() {
-    saveDialog.visible = false;
-    // saveDialog.blurInput();
-    // fileSaverDialog.resetInput();
-  }
+
+  saveDialog.visible = false;
+
   return {
     id: "save journal dialog",
     renderable: saveDialog,
-    keyHandlers: new Map([
+    keyHandlers: new Map<string, (key: KeyEvent) => boolean | Promise<boolean>>([
+      // [
+      //   "ctrl+s",
+      //   (key: KeyEvent) => {
+      //     saveDialog.visible = true;
+      //     journalNameInput.focus();
+      //     return true;
+      //   },
+      // ],
       [
-        "ctrl+s",
+        "escape",
         (key: KeyEvent) => {
-          saveDialog.visible = true;
-          journalNameInput.focus();
+          closeDialog();
           return true;
         },
       ],
       [
-        "escape",
-        (key: KeyEvent) => {
-          saveDialog.visible = false;
-          journalNameInput.blur();
-          journalNameInput.value = "";
-          journalNameInput.placeholder = "journal name...";
-          journalNameInput.placeholderColor = "#6E6E6E";
+        "enter",
+        async (key: KeyEvent) => {
+          await saveJournal();
           return true;
-        },
+        }
       ],
       [
         "m",
         (key: KeyEvent) => {
-          if (journalNameInput.focused) {
-            moodSelector.focus();
-          } else {
-            queueMicrotask(() => journalNameInput.focus());
-          }
+          toggleFocus();
           return true;
         },
       ],
     ]),
-    getInputContent: () => journalNameInput.plainText,
-    getSelectedMood,
-    focusInput: () => journalNameInput.focus(),
-    focusMoods: () => moodSelector.focus(),
-    blurInput: () => journalNameInput.blur(),
-    resetInput: () => {
-      journalNameInput.value = "";
-      journalNameInput.placeholder = "journal name...";
-      journalNameInput.placeholderColor = "#6E6E6E";
+    onEnter: () => {
+      console.log("[Dialog] entered (setting up subscriptions)");
+      // subscribe to save errors
+      const unsubError = store.subscribe("SAVE_ERROR", (errorMessage) => {
+        console.log("[Dialog] save error:", errorMessage);
+        showErrorMessage(`Error: ${errorMessage}`);
+      });
+
+      // subscribe to successful saves
+      const unsubSave = store.subscribe("JOURNAL_SAVED", () => {
+        console.log("[Dialog] jorunal saved, closing dialog");
+        closeDialog();
+      });
+      unsubscribers = [unsubError, unsubSave];
     },
-    isInputFocused: () => journalNameInput.focused,
-    // isMoodsFocused: () => moodSelector.focused,
-  };
+    onLeave: () => {
+      console.log("[Dialog] leaving (cleaning up subscriptions)");
+      unsubscribers.forEach((unsub) => unsub());
+      unsubscribers = [];
+      if (saveDialog.visible) {
+        closeDialog();
+      }
+    }
+  }
 }

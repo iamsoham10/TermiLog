@@ -126,7 +126,7 @@ export function createStore() {
     // dispatch an event
     dispatch<T extends ActionType>(
       action: T,
-      payload: ActionPayloads[T],
+      ...payload: ActionPayloads[T] extends void ? [] : [ActionPayloads[T]]
     ): void {
       console.log(`[Store] Dispatching ${action}`, payload);
 
