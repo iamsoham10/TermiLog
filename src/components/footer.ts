@@ -3,17 +3,22 @@ import {
   TextRenderable,
   type RenderContext,
 } from "@opentui/core";
-import { isLabeledStatement } from "typescript";
+import type { Store } from "../store/store";
+import type { ComponentDefinition } from "../focusManager";
 
-export function footerComponent(renderer: RenderContext) {
-  type Shortcut = {
-    key: string;
-    label: string;
-  };
-  type ShortcutNode = {
-    id: string;
-    node: TextRenderable;
-  };
+type Shortcut = {
+  key: string;
+  label: string;
+};
+type ShortcutNode = {
+  id: string;
+  node: TextRenderable;
+};
+
+export function footerComponent(renderer: RenderContext, store: Store): ComponentDefinition {
+
+  let unsubscribers: Array<() => void> = [];
+  let currentChildren: ShortcutNode[] = [];
 
   const shortcutContainer = new BoxRenderable(renderer, {
     id: "default-footer",
@@ -36,12 +41,10 @@ export function footerComponent(renderer: RenderContext) {
     };
   }
 
-  let currentChildren: ShortcutNode[] = [];
-
-  function setShortcuts(shortcuts: Shortcut[]) {
+  function setShortcuts(shortcuts: Shortcut[]): void {
     if (currentChildren.length != 0) {
       for (const child of currentChildren) {
-        shortcutContainer.remove(child.id);
+        shortcutContainer.remove(child.id);  //clear old shortcuts
         child.node.destroy();
       }
     }
@@ -49,7 +52,23 @@ export function footerComponent(renderer: RenderContext) {
       createShortcutText(shortcut, index),
     );
     for (const child of currentChildren) {
-      shortcutContainer.add(child.node);
+      shortcutContainer.add(child.node);  //add new shortcuts
+    }
+  }
+
+  function updateShortcutsForFocus(focusedId: string | null): void {
+    switch (focusedId) {
+      case "editor":
+        setShortcuts(editorShortcuts);
+        break;
+      case "sidebar":
+        setShortcuts(sidebarShortcuts);
+        break;
+      case "save-dialog":
+        setShortcuts(dialogShortcuts);
+        break;
+      default:
+        setShortcuts(defaultShortcuts);
     }
   }
 
@@ -61,18 +80,39 @@ export function footerComponent(renderer: RenderContext) {
     { key: "Tab", label: "Sidebar" },
     { key: "Ctrl+b", label: "Toggle Sidebar" },
   ];
-  const editorShortcuts = [{ key: "Esc", label: "Exit editor mode" }];
-  const sidebarShortcuts = [{ key: "↑↓", label: "Navigate journals" }];
+
+  const editorShortcuts = [
+    { key: "Esc", label: "Exit editor mode" }
+  ];
+
+  const sidebarShortcuts = [
+    { key: "↑↓", label: "Navigate" },
+    { key: "Enter", label: "Open journal" }
+  ];
+
+  const dialogShortcuts = [
+    { key: "Tab", label: "Switch field" },
+    { key: "Esc", label: "Cancel" },
+    { key: "Enter", label: "Save" },
+  ];
 
   setShortcuts(defaultShortcuts);
 
   return {
+    id: "footer",
     renderable: shortcutContainer,
-    setEditorMode(enabled: boolean) {
-      setShortcuts(enabled ? editorShortcuts : defaultShortcuts);
+    onEnter: () => {
+      console.log("[Footer] Entered (setting up subscriptions)");
+      const unsubFocus = store.subscribe("FOCUS_CHANGED", (focusedId) => {
+        console.log("[Footer] focus changed to:", focusedId);
+        updateShortcutsForFocus(focusedId);
+      });
+      unsubscribers = [unsubFocus];
     },
-    setSidebarMode(enabled: boolean) {
-      setShortcuts(enabled ? sidebarShortcuts : defaultShortcuts);
-    },
+    onLeave: () => {
+      console.log("[footer] leaving (cleaning up subscriptions)");
+      unsubscribers.forEach((unsub) => unsub());
+      unsubscribers = [];
+    }
   };
 }

@@ -218,7 +218,7 @@ export function journalSaveDialogComponent(
   saveDialog.visible = false;
 
   return {
-    id: "save journal dialog",
+    id: "save-dialog",
     renderable: saveDialog,
     keyHandlers: new Map<string, (key: KeyEvent) => boolean | Promise<boolean>>([
       // [
