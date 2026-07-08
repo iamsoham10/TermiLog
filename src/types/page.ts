@@ -5,5 +5,5 @@ export interface Page {
   renderable: Renderable;
   onEnter?: () => void;
   onLeave?: () => void;
-  onKeypress?: (key: KeyEvent) => void | boolean;
+  onKeypress?: (key: KeyEvent) => void | boolean | Promise<boolean>;
 }

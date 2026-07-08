@@ -1,65 +1,76 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import type { JournalsIndex } from "./types/journal";
 import { writeFile } from "node:fs/promises";
-import { journalEvents, JournalEventType } from "./events/journalEvents";
-import { JOURNAL_INDEX_PATH } from "./utils/pathUtils";
+import { JOURNAL_INDEX_PATH, TERMILOG_DIR } from "./utils/pathUtils";
+import path from "node:path";
 
-export const readJournalNamesFromIndex = (): string[] => {
-  try {
-    if (existsSync(JOURNAL_INDEX_PATH)) {
-      const journalMetadata = readFileSync(JOURNAL_INDEX_PATH, "utf-8");
-      const journalIndexData = JSON.parse(journalMetadata) as JournalsIndex;
-      const journalFileNames = journalIndexData.journals.map(
-        (fileItem) => fileItem.title,
-      );
-      return journalFileNames;
+/*
+ Pure I/O storage layer
+ This module will only handle file operations
+ It knows nothing aboout the business logic
+*/
+
+export const storage = {
+  // read the journal file and throw any errors
+  async readFile(path: string): Promise<string> {
+    try {
+      return readFileSync(path, "utf-8");
+    } catch (err) {
+      throw new Error(`Failed to read file at ${path}; ${err}`);
     }
-  } catch {
-    console.error("Index file parsing failed");
-    return [];
-  }
-  return [];
-};
+  },
 
-export const readJournalsIndex = (): JournalsIndex => {
-  try {
-    if (existsSync(JOURNAL_INDEX_PATH)) {
-      const content = readFileSync(JOURNAL_INDEX_PATH, "utf-8");
-      return JSON.parse(content);
+  // write the journal file and throw any errors
+  async writeFile(path: string, content: string): Promise<void> {
+    try {
+      return writeFile(path, content, "utf-8");
+    } catch (err) {
+      throw new Error(`Failed to write file at ${path}: ${err}`);
     }
-  } catch {
-    console.error("Index file reading failed");
-  }
-  return { journals: [] };
-};
+  },
 
-export const writeJournalsIndex = async (
-  index: JournalsIndex,
-): Promise<void> => {
-  /*
-  This function is called twice in reconcile strategy for design puroposes
-  To avoid the event emission twice this check is implemented
-  */
-  try {
-    let shouldWrite = true;
-    if (existsSync(JOURNAL_INDEX_PATH)) {
-      const existing = readFileSync(JOURNAL_INDEX_PATH, "utf-8");
-      if (existing === JSON.stringify(index, null, 2)) {
-        shouldWrite = false;
+  // read and parse the journal index file, return empty index if file doesn't exist, throw any errors
+  async readIndex(): Promise<JournalsIndex> {
+    try {
+      if (!existsSync(JOURNAL_INDEX_PATH)) {
+        return { journals: [] };
       }
+      const content = readFileSync(JOURNAL_INDEX_PATH, "utf-8");
+      return JSON.parse(content) as JournalsIndex;
+    } catch (err) {
+      throw new Error(`Failed to read index: ${err}`);
     }
-    if (!shouldWrite) {
-      console.log("journal index unchanged - no write or event emitted");
-      return;
+  },
+
+  // write journal index file as JSON, throw any errors
+  async writeIndex(index: JournalsIndex): Promise<void> {
+    try {
+      const dir = path.dirname(JOURNAL_INDEX_PATH);
+      if (!existsSync(dir)) {
+        mkdirSync(dir, { recursive: true });
+      }
+      await writeFile(
+        JOURNAL_INDEX_PATH,
+        JSON.stringify(index, null, 2),
+        "utf-8",
+      );
+    } catch (err) {
+      throw new Error(`Failed to write index: ${err}`);
     }
-    await writeFile(
-      JOURNAL_INDEX_PATH,
-      JSON.stringify(index, null, 2),
-      "utf-8",
-    );
-    journalEvents.emit(JournalEventType.INDEX_UPDATED, index);
-    console.log("Journal index added and event emitted");
-  } catch (err) {
-    console.error("Failed to write journals index", err);
-  }
+  },
+
+  // check if file exists or not
+  fileExists(path: string): boolean {
+    return existsSync(path);
+  },
+
+  // ensure journal directory exists
+  ensureDirectorExists(): void {
+    if (!existsSync(TERMILOG_DIR)) {
+      mkdirSync(TERMILOG_DIR, { recursive: true });
+    }
+  },
 };
+
+export type Storage = typeof storage;
+

@@ -1,61 +1,71 @@
 import { join } from "node:path";
 import path from "path";
-import { readJournalsIndex, writeJournalsIndex } from "./journalStorage";
+import { storage } from "./journalStorage";
 import { statSync } from "fs";
 import { existsSync, readdirSync } from "node:fs";
 import { TERMILOG_DIR } from "./utils/pathUtils";
+import type { Store } from "./store/store";
 
-// sync the index file with existing journals and remove deleted journals
-export const reconcileOnStartup = async () => {
-  // read the index file
-  const journalIndex = readJournalsIndex();
-  // remove the records of files which are not present
-  journalIndex.journals = journalIndex.journals.filter((file) => {
-    const filePath = join(TERMILOG_DIR, `${file.title}.md`);
-    return existsSync(filePath);
-  });
+export async function reconcileOnStartup(store: Store): Promise<void> {
+  console.log("[IndexSync] Starting reconcilation...");
 
-  for (const file of journalIndex.journals) {
-    const filePath = join(TERMILOG_DIR, `${file.title}.md`);
-    try {
-      const fileStat = statSync(filePath);
-      const mtime = fileStat.mtime.getTime();
-      const fileUpdatedAt = new Date(file.updatedAt).getTime();
+  try {
+    const index = await storage.readIndex();
 
-      if (mtime > fileUpdatedAt) {
-        // file is modified externally. Update the index here
-        file.updatedAt = new Date(mtime).toISOString();
+    const validJournals = index.journals.filter((journal) => {
+      const filePath = join(TERMILOG_DIR, `${journal.title}.md`);
+      const exists = existsSync(filePath);
+      if (!exists) {
+        console.log(`[IndexSync] Journal deleted externallyP: ${journal.title}`);
+
       }
-    } catch (err) {
-      console.warn("File deleted during reconcile", filePath);
-      continue;
+      return exists;
+    });
+
+    for (const journal of validJournals) {
+      const filePath = join(TERMILOG_DIR, `${journal.title}.md`);
+      try {
+        const fileStat = statSync(filePath);
+        const fileModTime = fileStat.mtime.getTime();
+        const indexModTime = new Date(journal.updatedAt).getTime();
+
+        if (fileModTime > indexModTime) {
+          console.log(`[IndexSync] Journal modified externally: ${journal.title}`);
+          journal.updatedAt = new Date(fileModTime).toISOString();
+        }
+      } catch (err) {
+        console.warn(`[IndexSync] Error checking file: ${filePath}`, err);
+
+      }
     }
-  }
-  await reconcileFileSystem();
-  await writeJournalsIndex(journalIndex);
-};
+    if (existsSync(TERMILOG_DIR)) {
+      const existingTitles = new Set(validJournals.map((j) => j.title));
+      const mdFiles = readdirSync(TERMILOG_DIR, { withFileTypes: true })
+        .filter(
+          (file) => file.isFile() && path.extname(file.name).toLowerCase() === ".md",
+        )
+        .map((file) => file.name.slice(0, -3));
 
-// if a journal file is created externally sync it with index
-const reconcileFileSystem = async () => {
-  const journalIndex = readJournalsIndex();
-  const indexFile = new Set(journalIndex.journals.map((file) => file.title));
-
-  const mdJournalFiles = readdirSync(TERMILOG_DIR, { withFileTypes: true })
-    .filter(
-      (journalFile) =>
-        journalFile.isFile() &&
-        path.extname(journalFile.name).toLowerCase() === ".md",
-    )
-    .map((mdFile) => mdFile.name.slice(0, -3));
-
-  for (let file of mdJournalFiles) {
-    if (!indexFile.has(file)) {
-      journalIndex.journals.push({
-        journalId: crypto.randomUUID(),
-        title: file,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
+      for (const fileName of mdFiles) {
+        if (!existingTitles.has(fileName)) {
+          console.log(`[IndexSync] New journal file found: ${fileName}`);
+          validJournals.push({
+            journalId: crypto.randomUUID(),
+            title: fileName,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          });
+        }
+      }
     }
+
+    const updatedIndex = { journals: validJournals };
+    await storage.writeIndex(updatedIndex);
+    console.log(`[IndexSync] Index updated with ${validJournals.length} journals`);
+
+    store.dispatch("JOURNALS_RELOADED", validJournals);
+    console.log("[IndexSync] Reconciliation complete");
+  } catch (err) {
+    console.error("[IndexSync] Reconciliation failed");
   }
-};
+} 
