@@ -9,9 +9,10 @@ import {
 import type { Page } from "../types/page";
 import { BaseLayout } from "../components/layout";
 import { footerComponent } from "../components/footer";
+import type { Store } from "../store/store";
 
-export function createHomePage(renderer: RenderContext): Page {
-  const footerShortcuts = footerComponent(renderer).renderable;
+export function createHomePage(renderer: RenderContext, store: Store): Page {
+  const footerShortcuts = footerComponent(renderer, store).renderable;
   const content = Box(
     {
       id: "title-container",
@@ -41,7 +42,7 @@ export function createHomePage(renderer: RenderContext): Page {
   return {
     id: "home",
     renderable: page,
-    onEnter() {},
-    onLeave() {},
+    onEnter() { },
+    onLeave() { },
   };
 }
