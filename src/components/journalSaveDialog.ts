@@ -221,14 +221,14 @@ export function journalSaveDialogComponent(
     id: "save-dialog",
     renderable: saveDialog,
     keyHandlers: new Map<string, (key: KeyEvent) => boolean | Promise<boolean>>([
-      // [
-      //   "ctrl+s",
-      //   (key: KeyEvent) => {
-      //     saveDialog.visible = true;
-      //     journalNameInput.focus();
-      //     return true;
-      //   },
-      // ],
+      [
+        "ctrl+s",
+        (key: KeyEvent) => {
+          saveDialog.visible = true;
+          journalNameInput.focus();
+          return true;
+        },
+      ],
       [
         "escape",
         (key: KeyEvent) => {

@@ -47,6 +47,9 @@ export function createJournalPage(renderer: RenderContext, store: Store, service
     renderable: page,
     onEnter() {
       console.log("[JournalPage] Entered (components handle their own subscriptions)");
+      const journals = await service.listJournals();
+      store.dispatch("JOURNALS_RELOADED", journals);
+      focusManager.setFocusedComponent('editor');
     },
     onLeave() {
       console.log("[JournalPage] Left (components clean up automatically)");
