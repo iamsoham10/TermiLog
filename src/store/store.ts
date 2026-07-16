@@ -6,7 +6,7 @@ interface AppState {
   editorContent: string;
   isSaving: boolean;
   lastError: { message: string; action: string } | null;
-  focusedComponent: "editor" | "sidebar" | "dialog" | null;
+  focusedComponent: "editor" | "sidebar" | "save-dialog" | null;
   dialogOpen: boolean;
 }
 
@@ -29,7 +29,7 @@ type ActionPayloads = {
   JOURNAL_DELETED: string;
   EDITOR_CONTENT_CHANGED: string;
   SAVE_ERROR: string;
-  FOCUS_CHANGED: "editor" | "sidebar" | "dialog" | null;
+  FOCUS_CHANGED: "editor" | "sidebar" | "save-dialog" | null;
   DIALOG_OPENED: void;
   DIALOG_CLOSED: void;
   JOURNALS_RELOADED: JournalMetadata[];

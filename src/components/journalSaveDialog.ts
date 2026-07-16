@@ -1,6 +1,7 @@
 import {
   Box,
   InputRenderable,
+  InputRenderableEvents,
   instantiate,
   KeyEvent,
   SelectRenderable,
@@ -13,13 +14,11 @@ import type { JournalService } from "../journalService";
 import type { ComponentDefinition } from "../focusManager";
 import { toast } from "@opentui-ui/toast";
 
-
 export function journalSaveDialogComponent(
   renderer: RenderContext,
   store: Store,
-  service: JournalService
+  service: JournalService,
 ): ComponentDefinition {
-
   let unsubscribers: Array<() => void> = [];
   let isInputFocused = true;
 
@@ -28,6 +27,10 @@ export function journalSaveDialogComponent(
     placeholder: "journal name...",
     overflow: "hidden",
     marginLeft: 1,
+  });
+
+  journalNameInput.on(InputRenderableEvents.ENTER, (key: KeyEvent) => {
+    saveJournal();
   });
 
   const moodOptions = [
@@ -46,6 +49,8 @@ export function journalSaveDialogComponent(
     focusedBackgroundColor: "#202020",
     options: moodOptions,
     selectedIndex: 0,
+    selectedBackgroundColor: "#202020",
+    showScrollIndicator: false,
   });
 
   moodSelector.on(SelectRenderableEvents.SELECTION_CHANGED, (index: number) => {
@@ -62,6 +67,7 @@ export function journalSaveDialogComponent(
     journalNameInput.placeholderColor = "#6E6E6E";
     currentMoodIndex = 0;
     moodSelector.selectedIndex = 0;
+    isInputFocused = true;
   }
 
   function closeDialog() {
@@ -69,7 +75,6 @@ export function journalSaveDialogComponent(
     journalNameInput.blur();
     moodSelector.blur();
     resetInput();
-    store.dispatch("DIALOG_CLOSED");
   }
 
   function showErrorMessage(message: string): void {
@@ -96,7 +101,7 @@ export function journalSaveDialogComponent(
     const state = store.getState();
     const content = state.editorContent;
 
-    if (!name || name.trim() == '') {
+    if (!name || name.trim() == "") {
       showErrorMessage("Title required...");
       return;
     }
@@ -220,37 +225,24 @@ export function journalSaveDialogComponent(
   return {
     id: "save-dialog",
     renderable: saveDialog,
-    keyHandlers: new Map<string, (key: KeyEvent) => boolean | Promise<boolean>>([
+    keyHandlers: new Map<string, (key: KeyEvent) => boolean | Promise<boolean>>(
       [
-        "ctrl+s",
-        (key: KeyEvent) => {
-          saveDialog.visible = true;
-          journalNameInput.focus();
-          return true;
-        },
+        [
+          "escape",
+          (key: KeyEvent) => {
+            store.dispatch("DIALOG_CLOSED");
+            return true;
+          },
+        ],
+        [
+          "m",
+          (key: KeyEvent) => {
+            toggleFocus();
+            return true;
+          },
+        ],
       ],
-      [
-        "escape",
-        (key: KeyEvent) => {
-          closeDialog();
-          return true;
-        },
-      ],
-      [
-        "enter",
-        async (key: KeyEvent) => {
-          await saveJournal();
-          return true;
-        }
-      ],
-      [
-        "m",
-        (key: KeyEvent) => {
-          toggleFocus();
-          return true;
-        },
-      ],
-    ]),
+    ),
     onEnter: () => {
       console.log("[Dialog] entered (setting up subscriptions)");
       // subscribe to save errors
@@ -264,7 +256,24 @@ export function journalSaveDialogComponent(
         console.log("[Dialog] jorunal saved, closing dialog");
         closeDialog();
       });
-      unsubscribers = [unsubError, unsubSave];
+
+      const unsubscribeDialog = store.subscribe("DIALOG_OPENED", () => {
+        saveDialog.visible = true;
+        isInputFocused = true;
+        journalNameInput.focus();
+        moodSelector.blur();
+        resetInput();
+      });
+
+      const unsubCloseDialog = store.subscribe("DIALOG_CLOSED", () => {
+        closeDialog();
+      });
+      unsubscribers = [
+        unsubError,
+        unsubSave,
+        unsubscribeDialog,
+        unsubCloseDialog,
+      ];
     },
     onLeave: () => {
       console.log("[Dialog] leaving (cleaning up subscriptions)");
@@ -273,6 +282,6 @@ export function journalSaveDialogComponent(
       if (saveDialog.visible) {
         closeDialog();
       }
-    }
-  }
+    },
+  };
 }

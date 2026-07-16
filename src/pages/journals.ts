@@ -9,16 +9,20 @@ import { createFocusManager } from "../focusManager";
 import type { Store } from "../store/store";
 import type { JournalService } from "../journalService";
 
-export function createJournalPage(renderer: RenderContext, store: Store, service: JournalService): Page {
+export function createJournalPage(
+  renderer: RenderContext,
+  store: Store,
+  service: JournalService,
+): Page {
   console.log("[JournalPage] Creating with store and service");
 
   const focusManager = createFocusManager();
+  let unsubscribers: Array<() => void> = [];
 
   const sidebar = sidebarComponent(renderer, store, service);
   const editor = editorComponent(renderer, store);
   const fileSaverDialog = journalSaveDialogComponent(renderer, store, service);
   const footer = footerComponent(renderer, store);
-
 
   focusManager.registerComponent(editor);
   focusManager.registerComponent(sidebar);
@@ -46,13 +50,35 @@ export function createJournalPage(renderer: RenderContext, store: Store, service
     id: "journal",
     renderable: page,
     onEnter() {
-      console.log("[JournalPage] Entered (components handle their own subscriptions)");
-      const journals = await service.listJournals();
-      store.dispatch("JOURNALS_RELOADED", journals);
-      focusManager.setFocusedComponent('editor');
+      console.log(
+        "[JournalPage] Entered (components handle their own subscriptions)",
+      );
+      const unsubFocusChanged = store.subscribe("FOCUS_CHANGED", (focusId) => {
+        if (focusId === null) {
+          return;
+        }
+
+        focusManager.setFocusedComponent(focusId);
+      });
+
+      const unsubDialogOpen = store.subscribe("DIALOG_OPENED", () => {
+        focusManager.setFocusedComponent("save-dialog");
+        store.dispatch("FOCUS_CHANGED", "save-dialog");
+      });
+
+      const unsubDialogClosed = store.subscribe("DIALOG_CLOSED", () => {
+        focusManager.setFocusedComponent("editor");
+        store.dispatch("FOCUS_CHANGED", "editor");
+      });
+
+      unsubscribers = [unsubFocusChanged, unsubDialogOpen, unsubDialogClosed];
+      focusManager.setFocusedComponent("editor");
+      store.dispatch("FOCUS_CHANGED", "editor");
     },
     onLeave() {
       console.log("[JournalPage] Left (components clean up automatically)");
+      unsubscribers.forEach((unsub) => unsub());
+      unsubscribers = [];
     },
     onKeypress: (key) => {
       return focusManager.routeKeypress(key);

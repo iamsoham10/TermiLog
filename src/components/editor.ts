@@ -101,6 +101,20 @@ export function editorComponent(
     renderable: editorContainer,
     keyHandlers: new Map([
       [
+        "ctrl+s",
+        (key: KeyEvent) => {
+          store.dispatch("DIALOG_OPENED");
+          return true;
+        },
+      ],
+      [
+        "tab",
+        (key: KeyEvent) => {
+          store.dispatch("FOCUS_CHANGED", "sidebar");
+          return true;
+        },
+      ],
+      [
         "i",
         (key: KeyEvent) => {
           queueMicrotask(() => textEditor.focus());
@@ -151,6 +165,8 @@ export function editorComponent(
     onLeave: () => {
       // unsubcribe (cleanup)
       console.log("[Editor] leaving");
+      textEditor.blur();
+      updateBorderColor(false);
       unsubscribers.forEach((unsub) => unsub());
       unsubscribers = [];
     },
