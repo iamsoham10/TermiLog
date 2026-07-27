@@ -1,4 +1,4 @@
-import { KeyEvent, Renderable } from "@opentui/core";
+import { KeyEvent, Renderable, TextareaRenderable } from "@opentui/core";
 
 /*
 FocusManager - Keyboard Routing
@@ -14,6 +14,7 @@ Component register themselves and declare their keyHandlers map
 export interface ComponentDefinition {
   id: string;
   renderable: Renderable;
+  textArea?: TextareaRenderable;
   keyHandlers?: Map<string, (key: KeyEvent) => boolean | Promise<boolean>>;
   onEnter?: () => void;
   onLeave?: () => void;

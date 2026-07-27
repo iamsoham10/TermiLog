@@ -99,6 +99,7 @@ export function editorComponent(
   return {
     id: "editor",
     renderable: editorContainer,
+    textArea: textEditor,
     keyHandlers: new Map([
       [
         "ctrl+s",
@@ -135,6 +136,8 @@ export function editorComponent(
     ]),
     onEnter: () => {
       console.log("[Editor] entered (setting up subscriptions)");
+      queueMicrotask(() => { textEditor.focus() });
+      updateBorderColor(true);
 
       // subscribe to journal loads
       const unsubJournal = store.subscribe("JOURNAL_LOADED", (payload) => {

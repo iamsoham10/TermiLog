@@ -68,7 +68,7 @@ export function createJournalPage(
 
       const unsubDialogClosed = store.subscribe("DIALOG_CLOSED", () => {
         focusManager.setFocusedComponent("editor");
-        store.dispatch("FOCUS_CHANGED", "editor");
+        queueMicrotask(() => { editor.textArea?.focus() });
       });
 
       unsubscribers = [unsubFocusChanged, unsubDialogOpen, unsubDialogClosed];

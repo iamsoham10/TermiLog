@@ -75,6 +75,7 @@ export function journalSaveDialogComponent(
     journalNameInput.blur();
     moodSelector.blur();
     resetInput();
+    store.dispatch("DIALOG_CLOSED");
   }
 
   function showErrorMessage(message: string): void {
@@ -114,6 +115,7 @@ export function journalSaveDialogComponent(
       console.log("[Dialog] Save successful");
       toast.success(`Journal "${name}" saved successfully`);
       closeDialog();
+      store.dispatch("FOCUS_CHANGED", "editor")
     } else {
       console.error("[Dialog] Save failed:", result.message);
     }
@@ -230,7 +232,7 @@ export function journalSaveDialogComponent(
         [
           "escape",
           (key: KeyEvent) => {
-            store.dispatch("DIALOG_CLOSED");
+            closeDialog();
             return true;
           },
         ],
@@ -265,14 +267,10 @@ export function journalSaveDialogComponent(
         resetInput();
       });
 
-      const unsubCloseDialog = store.subscribe("DIALOG_CLOSED", () => {
-        closeDialog();
-      });
       unsubscribers = [
         unsubError,
         unsubSave,
         unsubscribeDialog,
-        unsubCloseDialog,
       ];
     },
     onLeave: () => {
