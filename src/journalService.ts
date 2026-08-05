@@ -125,6 +125,7 @@ export function createJournalService(config: JournalServiceConfig) {
 
       // dispath to store - single source of truth
       store.dispatch("JOURNAL_SAVED", metadata);
+      store.dispatch("JOURNALS_RELOADED", index.journals);
 
       console.log("[JournalService] journal saved successfully:", title);
 

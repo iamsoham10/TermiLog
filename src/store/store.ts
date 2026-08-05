@@ -8,6 +8,7 @@ interface AppState {
   lastError: { message: string; action: string } | null;
   focusedComponent: "editor" | "sidebar" | "save-dialog" | null;
   dialogOpen: boolean;
+  sidebarVisible: boolean;
 }
 
 type ActionType =
@@ -20,7 +21,8 @@ type ActionType =
   | "FOCUS_CHANGED"
   | "DIALOG_OPENED"
   | "DIALOG_CLOSED"
-  | "JOURNALS_RELOADED";
+  | "JOURNALS_RELOADED"
+  | "SIDEBAR_VISIBILITY_CHANGED"
 
 type ActionPayloads = {
   JOURNAL_SELECTED: string;
@@ -33,6 +35,7 @@ type ActionPayloads = {
   DIALOG_OPENED: void;
   DIALOG_CLOSED: void;
   JOURNALS_RELOADED: JournalMetadata[];
+  SIDEBAR_VISIBILITY_CHANGED: boolean;
 };
 
 type UnsubscribeFn = () => void;
@@ -46,6 +49,7 @@ export function createStore() {
     lastError: null,
     focusedComponent: null,
     dialogOpen: false,
+    sidebarVisible: true
   };
 
   // listener map to store listener functions for each action type
@@ -65,8 +69,7 @@ export function createStore() {
     // update state based on action
     switch (action) {
       case "JOURNAL_SELECTED":
-        newState.currentJournal = payload; // payload is JournalMetadata
-        newState.editorContent = payload.content || "";
+        newState.currentJournal = state.journals.find((journal) => journal.title === payload) ?? null;
         break;
 
       case "JOURNAL_SAVED":
@@ -113,6 +116,10 @@ export function createStore() {
         newState.journals = payload;
         break;
 
+      case "SIDEBAR_VISIBILITY_CHANGED":
+        newState.sidebarVisible = payload;
+        break;
+
       default:
         const _exhaustive: never = action;
         return _exhaustive;
@@ -128,15 +135,16 @@ export function createStore() {
       action: T,
       ...payload: ActionPayloads[T] extends void ? [] : [ActionPayloads[T]]
     ): void {
+      const actualPayload = payload[0] as ActionPayloads[T];
       console.log(`[Store] Dispatching ${action}`, payload);
 
       // update the state
-      state = updateState(action, payload);
+      state = updateState(action, actualPayload);
 
       // get all the handlers
       const handlers = getListeners(action);
       handlers.forEach((handler) => {
-        handler(payload);
+        handler(actualPayload);
       });
     },
 

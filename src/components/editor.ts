@@ -44,6 +44,9 @@ export function editorComponent(
     cursorColor: "#00FF88",
     textColor: "#e6e6e6",
   });
+  textEditor.onContentChange = () => {
+    store.dispatch('EDITOR_CONTENT_CHANGED', textEditor.plainText);
+  }
 
   const editorBox = Box(
     {
@@ -96,6 +99,15 @@ export function editorComponent(
       : RGBA.fromHex("#696969");
   }
 
+  // subscribe to journal loads
+  store.subscribe("JOURNAL_LOADED", (payload) => {
+    console.log("[Editor] journal loaded, updating content");
+    clearEditorContent();
+    textEditor.setText(payload.content || "");
+    textEditor.gotoBufferEnd();
+    store.dispatch("FOCUS_CHANGED", 'editor');
+  });
+
   return {
     id: "editor",
     renderable: editorContainer,
@@ -139,31 +151,13 @@ export function editorComponent(
       queueMicrotask(() => { textEditor.focus() });
       updateBorderColor(true);
 
-      // subscribe to journal loads
-      const unsubJournal = store.subscribe("JOURNAL_LOADED", (payload) => {
-        console.log("[Editor] journal loaded, updating content");
-        clearEditorContent();
-        textEditor.setText(payload.content || "");
-        textEditor.focus();
-        updateBorderColor(true);
-      });
-
-      const unsubSelect = store.subscribe("JOURNAL_SELECTED", () => {
-        // clear the editor for now (it will be changed later)
-        // when new journal is selected check if the editor has some text
-        // check whether that text is saved in a journal or not
-        // if not then before loading the new journal show a dialog to user as warning to whether save the content or not
-        // after user action, load the selected journal
-        clearEditorContent(); // for testing purpose, will be removed
-      });
-
       const unsubSave = store.subscribe("JOURNAL_SAVED", () => {
         console.log("[Editor] journal saved");
         textEditor.blur();
         updateBorderColor(false);
       });
 
-      unsubscribers = [unsubJournal, unsubSelect, unsubSave];
+      unsubscribers = [unsubSave];
     },
     onLeave: () => {
       // unsubcribe (cleanup)

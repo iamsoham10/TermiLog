@@ -37,7 +37,6 @@ export function sidebarComponent(
       itemSpacing: 1,
       showDescription: false,
       selectedTextColor: "#FFFF00",
-      selectedIndex: -1,
     }),
   );
   const sidebar = instantiate(
@@ -87,7 +86,7 @@ export function sidebarComponent(
       console.warn("[Sidebar] no journal selected");
       return;
     }
-    console.log("[Sidebar] loading journal:", selectedJournal);
+    console.log("[Sidebar] loading journal:", selectedJournal.title);
 
     // call service to load journal
     const result = await service.loadJournal(selectedJournal.title);
@@ -106,22 +105,35 @@ export function sidebarComponent(
     },
   );
 
+  selectComponent.on(SelectRenderableEvents.ITEM_SELECTED, async (index: number) => {
+    selectedIndex = index;
+    await selectJournal();
+  })
+
+  service.listJournals().then(updateList);
+  store.subscribe("JOURNALS_RELOADED", (journalList) => {
+    console.log("[Sidebar] journals reloaded");
+    updateList(journalList);
+  });
+
   return {
     id: "sidebar",
     renderable: sidebar,
     keyHandlers: new Map([
-      [
-        "enter",
-        async (key: KeyEvent) => {
-          await selectJournal();
-          return true;
-        },
-      ],
+      // [
+      //   "ctrl+b",
+      //   (key: KeyEvent) => {
+      //     hideSidebar();
+      //     return true;
+      //   }
+      // ]
     ]),
     onEnter: async () => {
       console.log("[Sidebar] loading journals");
+      selectComponent.focus();
       const unsubReload = store.subscribe("JOURNALS_RELOADED", (index) => {
         console.log("[Sidebar] journals reloaded");
+        updateList(index);
       });
 
       const unsubFocus = store.subscribe("FOCUS_CHANGED", (focusId) => {

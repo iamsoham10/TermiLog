@@ -73,23 +73,41 @@ export function createFocusManager() {
   // focus next component - rotate through focus order
   function focusNext(): void {
     if (focusOrder.length === 0) return;
-    const currentIndex = focusOrder.indexOf(focusedComponentId);
-    const nextIndex = (currentIndex + 1) % focusOrder.length;
-    setFocusedComponent(focusOrder[nextIndex]!);
+    // const currentIndex = focusOrder.indexOf(focusedComponentId);
+    // const nextIndex = (currentIndex + 1) % focusOrder.length;
+    // setFocusedComponent(focusOrder[nextIndex]!);
+    const start = (focusOrder.indexOf(focusedComponentId) + 1) % focusOrder.length;
+    focusVisibleFrom(start, 1);
   }
 
   // Focus previous component (Shift+Tab key)
   // Rotates backwards through focusOrder array circularly
   function focusPrevious(): void {
     if (focusOrder.length === 0) return;
-    const currentIndex = focusOrder.indexOf(focusedComponentId);
+    // const currentIndex = focusOrder.indexOf(focusedComponentId);
 
     // If not found or at start, wrap to end
     // (currentIndex - 1 + length) ensures we get positive number
-    const prevIndex =
-      (currentIndex - 1 + focusOrder.length) % focusOrder.length;
+    // const prevIndex =
+    //   (currentIndex - 1 + focusOrder.length) % focusOrder.length;
 
-    setFocusedComponent(focusOrder[prevIndex]!);
+    // setFocusedComponent(focusOrder[prevIndex]!);
+    if (focusOrder.length === 0) return;
+    const start = (focusOrder.indexOf(focusedComponentId) - 1 + focusOrder.length) % focusOrder.length;
+    focusVisibleFrom(start, -1);
+  }
+
+  // scan the focus order for the next visible component; direction = +1 or -1
+  function focusVisibleFrom(startIndex: number, direction: 1 | -1): void {
+    let i = startIndex;
+    for (let count = 0; count < focusOrder.length; count++) {
+      const candidate = components.get(focusOrder[i]!);
+      if (candidate?.renderable.visible) {
+        setFocusedComponent(candidate.id);
+        return;
+      }
+      i = (i + direction + focusOrder.length) % focusOrder.length;
+    }
   }
 
   // Route a keypress event

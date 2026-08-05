@@ -73,7 +73,7 @@ export function createJournalPage(
 
       unsubscribers = [unsubFocusChanged, unsubDialogOpen, unsubDialogClosed];
       focusManager.setFocusedComponent("editor");
-      store.dispatch("FOCUS_CHANGED", "editor");
+      // store.dispatch("FOCUS_CHANGED", "editor");
     },
     onLeave() {
       console.log("[JournalPage] Left (components clean up automatically)");
@@ -81,6 +81,17 @@ export function createJournalPage(
       unsubscribers = [];
     },
     onKeypress: (key) => {
+      if (key.ctrl && key.name === "b" && !store.getState().dialogOpen) {
+        const nextVisible = !store.getState().sidebarVisible;
+
+        if (!nextVisible && focusManager.getFocusedComponent() === "sidebar") {
+          store.dispatch("FOCUS_CHANGED", "editor");
+        }
+
+        sidebar.renderable.visible = nextVisible;
+        store.dispatch("SIDEBAR_VISIBILITY_CHANGED", nextVisible);
+        return true;
+      }
       return focusManager.routeKeypress(key);
     },
   };
