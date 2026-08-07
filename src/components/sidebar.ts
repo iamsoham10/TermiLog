@@ -130,24 +130,23 @@ export function sidebarComponent(
     ]),
     onEnter: async () => {
       console.log("[Sidebar] loading journals");
+      updateBorderColor(true);
       selectComponent.focus();
       const unsubReload = store.subscribe("JOURNALS_RELOADED", (index) => {
         console.log("[Sidebar] journals reloaded");
         updateList(index);
       });
 
-      const unsubFocus = store.subscribe("FOCUS_CHANGED", (focusId) => {
-        updateBorderColor(focusId === "sidebar");
-      });
 
       const journals = await service.listJournals();
       updateList(journals);
 
-      unsubscribers = [unsubReload, unsubFocus];
+      unsubscribers = [unsubReload];
     },
 
     onLeave: () => {
       console.log("[Sidebar] leaving");
+      updateBorderColor(false);
       unsubscribers.forEach((unsub) => unsub());
       unsubscribers = [];
     },
