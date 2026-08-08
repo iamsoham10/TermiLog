@@ -1,4 +1,5 @@
 import { KeyEvent, Renderable, TextareaRenderable } from "@opentui/core";
+import type { Store } from "./store/store";
 
 /*
 FocusManager - Keyboard Routing
@@ -16,11 +17,11 @@ export interface ComponentDefinition {
   renderable: Renderable;
   textArea?: TextareaRenderable;
   keyHandlers?: Map<string, (key: KeyEvent) => boolean | Promise<boolean>>;
-  onEnter?: () => void;
+  onEnter?: (initialFocusId?: string) => void;
   onLeave?: () => void;
 }
 
-export function createFocusManager() {
+export function createFocusManager(store: Store) {
   let focusedComponentId: string = "";
   const components = new Map<string, ComponentDefinition>();
   let focusOrder: string[] = [];
@@ -57,6 +58,10 @@ export function createFocusManager() {
       newComponent.onEnter();
     }
 
+    store.dispatch(
+      "FOCUS_CHANGED",
+      componentId as "editor" | "sidebar" | "save-dialog",
+    );
     console.log(`[FocusManager] focus changed to: ${componentId}`);
   }
 

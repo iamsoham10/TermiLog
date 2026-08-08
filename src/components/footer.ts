@@ -81,7 +81,8 @@ export function footerComponent(renderer: RenderContext, store: Store): Componen
   ];
 
   const editorShortcuts = [
-    { key: "Esc", label: "Exit editor mode" }
+    { key: "Esc", label: "Exit editor mode" },
+    { key: "Ctrl+b", label: "Toggle Sidebar" },
   ];
 
   const sidebarShortcuts = [
@@ -100,13 +101,16 @@ export function footerComponent(renderer: RenderContext, store: Store): Componen
   return {
     id: "footer",
     renderable: shortcutContainer,
-    onEnter: () => {
+    onEnter: (initialFocusId?: string) => {
       console.log("[Footer] Entered (setting up subscriptions)");
       const unsubFocus = store.subscribe("FOCUS_CHANGED", (focusedId) => {
         console.log("[Footer] focus changed to:", focusedId);
         updateShortcutsForFocus(focusedId);
       });
       unsubscribers = [unsubFocus];
+      if (initialFocusId) {
+        updateShortcutsForFocus(initialFocusId);
+      }
     },
     onLeave: () => {
       console.log("[footer] leaving (cleaning up subscriptions)");

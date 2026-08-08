@@ -16,7 +16,7 @@ export function createJournalPage(
 ): Page {
   console.log("[JournalPage] Creating with store and service");
 
-  const focusManager = createFocusManager();
+  const focusManager = createFocusManager(store);
   let unsubscribers: Array<() => void> = [];
 
   const sidebar = sidebarComponent(renderer, store, service);
@@ -58,12 +58,15 @@ export function createJournalPage(
           return;
         }
 
+        if (focusId === focusManager.getFocusedComponent()) {
+          return;
+        }
+
         focusManager.setFocusedComponent(focusId);
       });
 
       const unsubDialogOpen = store.subscribe("DIALOG_OPENED", () => {
         focusManager.setFocusedComponent("save-dialog");
-        store.dispatch("FOCUS_CHANGED", "save-dialog");
       });
 
       const unsubDialogClosed = store.subscribe("DIALOG_CLOSED", () => {
@@ -72,10 +75,12 @@ export function createJournalPage(
       });
 
       unsubscribers = [unsubFocusChanged, unsubDialogOpen, unsubDialogClosed];
+      footer.onEnter?.("editor");
       focusManager.setFocusedComponent("editor");
     },
     onLeave() {
       console.log("[JournalPage] Left (components clean up automatically)");
+      footer.onLeave?.();
       unsubscribers.forEach((unsub) => unsub());
       unsubscribers = [];
     },
