@@ -74,7 +74,6 @@ export function footerComponent(renderer: RenderContext, store: Store): Componen
 
   const defaultShortcuts = [
     { key: "J", label: "Journal" },
-    { key: "H", label: "Home" },
     { key: "I", label: "Edit" },
     { key: "Q", label: "Quit" },
     { key: "Tab", label: "Sidebar" },

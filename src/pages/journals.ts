@@ -73,7 +73,6 @@ export function createJournalPage(
 
       unsubscribers = [unsubFocusChanged, unsubDialogOpen, unsubDialogClosed];
       focusManager.setFocusedComponent("editor");
-      // store.dispatch("FOCUS_CHANGED", "editor");
     },
     onLeave() {
       console.log("[JournalPage] Left (components clean up automatically)");

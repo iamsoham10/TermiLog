@@ -65,9 +65,6 @@ async function main() {
     if (key.name === "/") {
       renderer.console.toggle();
     }
-    if (key.name === "h") {
-      router.navigate("home");
-    }
     if (key.name === "j" && activePage?.id !== "journal") {
       router.navigate("journal");
     }
