@@ -79,6 +79,7 @@ export function footerComponent(renderer: RenderContext, store: Store): Componen
 
   const editorShortcuts = [
     { key: "Esc", label: "Exit editor mode" },
+    { key: "Ctrl+s", label: "Save" },
     { key: "Ctrl+b", label: "Toggle Sidebar" },
   ];
 

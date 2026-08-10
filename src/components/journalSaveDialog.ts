@@ -196,11 +196,11 @@ export function journalSaveDialogComponent(
             gap: 1,
           },
           Text({
-            content: "enter",
+            content: "esc",
             fg: "#FFFFFF",
           }),
           Text({
-            content: "Save",
+            content: "Close",
             fg: "#6E6E6E",
           }),
         ),
@@ -210,11 +210,11 @@ export function journalSaveDialogComponent(
             gap: 1,
           },
           Text({
-            content: "esc",
+            content: "enter",
             fg: "#FFFFFF",
           }),
           Text({
-            content: "Close",
+            content: "Save",
             fg: "#6E6E6E",
           }),
         ),
