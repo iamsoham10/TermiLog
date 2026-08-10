@@ -64,9 +64,6 @@ export function footerComponent(renderer: RenderContext, store: Store): Componen
       case "sidebar":
         setShortcuts(sidebarShortcuts);
         break;
-      case "save-dialog":
-        setShortcuts(dialogShortcuts);
-        break;
       default:
         setShortcuts(defaultShortcuts);
     }
@@ -88,12 +85,6 @@ export function footerComponent(renderer: RenderContext, store: Store): Componen
   const sidebarShortcuts = [
     { key: "↑↓", label: "Navigate" },
     { key: "Enter", label: "Open journal" }
-  ];
-
-  const dialogShortcuts = [
-    { key: "Tab", label: "Switch field" },
-    { key: "Esc", label: "Cancel" },
-    { key: "Enter", label: "Save" },
   ];
 
   setShortcuts(defaultShortcuts);

@@ -124,6 +124,11 @@ export function createFocusManager(store: Store) {
   function routeKeypress(key: KeyEvent): Promise<boolean> | boolean {
     // handle special case
     if (key.name === "tab") {
+      const component = getFocusedComponentDef();
+      const tabKeyName = buildKeyName(key);
+      const handler = component?.keyHandlers?.get(tabKeyName);
+      if (handler) return handler(key);
+
       if (key.shift) {
         focusPrevious();
       } else {

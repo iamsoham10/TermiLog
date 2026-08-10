@@ -11,6 +11,7 @@ import { EMOJI_ICONS } from "@opentui-ui/toast";
 import { createStore } from "./store/store";
 import { createJournalService } from "./journalService";
 import { storage } from "./journalStorage";
+import { shouldDeferToTextInput } from "./utils/keyboardUtils.ts";
 
 
 async function main() {
@@ -60,7 +61,9 @@ async function main() {
 
   renderer.keyInput.on("keypress", (key) => {
     const activePage = router.getActivePage();
-    if (activePage?.onKeypress?.(key)) return;
+    const pageHandled = activePage?.onKeypress?.(key) ?? false;
+    if (pageHandled) return;
+    if (shouldDeferToTextInput(renderer, key)) return;
 
     if (key.name === "/") {
       renderer.console.toggle();
@@ -68,8 +71,7 @@ async function main() {
     if (key.name === "j" && activePage?.id !== "journal") {
       router.navigate("journal");
     }
-    const focused = renderer.root.focused;
-    if (key.name === "q" && !focused) {
+    if (key.name === "q") {
       renderer.destroy();
     }
   });

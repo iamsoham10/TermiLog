@@ -218,6 +218,20 @@ export function journalSaveDialogComponent(
             fg: "#6E6E6E",
           }),
         ),
+        Box(
+          {
+            flexDirection: "row",
+            gap: 1,
+          },
+          Text({
+            content: "tab",
+            fg: "#FFFFFF",
+          }),
+          Text({
+            content: "mood/name",
+            fg: "#6E6E6E",
+          }),
+        )
       ),
     ),
   );
@@ -237,7 +251,7 @@ export function journalSaveDialogComponent(
           },
         ],
         [
-          "m",
+          "tab",
           (key: KeyEvent) => {
             toggleFocus();
             return true;

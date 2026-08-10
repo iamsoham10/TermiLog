@@ -8,6 +8,7 @@ import { footerComponent } from "../components/footer";
 import { createFocusManager } from "../focusManager";
 import type { Store } from "../store/store";
 import type { JournalService } from "../journalService";
+import { shouldDeferToTextInput } from "../utils/keyboardUtils.ts";
 
 export function createJournalPage(
   renderer: RenderContext,
@@ -96,6 +97,12 @@ export function createJournalPage(
         store.dispatch("SIDEBAR_VISIBILITY_CHANGED", nextVisible);
         return true;
       }
+      const isDialogFieldNav =
+        store.getState().dialogOpen &&
+        key.name === "tab" &&
+        focusManager.getFocusedComponent() === "save-dialog";
+
+      if (!isDialogFieldNav && shouldDeferToTextInput(renderer, key)) return false;
       return focusManager.routeKeypress(key);
     },
   };
