@@ -9,6 +9,7 @@ import { createFocusManager } from "../focusManager";
 import type { Store } from "../store/store";
 import type { JournalService } from "../journalService";
 import { shouldDeferToTextInput } from "../utils/keyboardUtils.ts";
+import { journalInfoComponent } from "../components/journalInfo.ts";
 
 export function createJournalPage(
   renderer: RenderContext,
@@ -21,9 +22,10 @@ export function createJournalPage(
   let unsubscribers: Array<() => void> = [];
 
   const sidebar = sidebarComponent(renderer, store, service);
-  const editor = editorComponent(renderer, store);
   const fileSaverDialog = journalSaveDialogComponent(renderer, store, service);
   const footer = footerComponent(renderer, store);
+  const infoBar = journalInfoComponent(renderer, store);
+  const editor = editorComponent(renderer, store, infoBar.renderable);
 
   focusManager.registerComponent(editor);
   focusManager.registerComponent(sidebar);

@@ -2,7 +2,6 @@ import {
   Box,
   BoxRenderable,
   instantiate,
-  KeyEvent,
   RGBA,
   Select,
   SelectRenderableEvents,

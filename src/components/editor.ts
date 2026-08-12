@@ -3,6 +3,7 @@ import {
   BoxRenderable,
   instantiate,
   KeyEvent,
+  Renderable,
   RGBA,
   TextareaRenderable,
   type RenderContext,
@@ -30,10 +31,10 @@ const currentPlaceholder =
 export function editorComponent(
   renderer: RenderContext,
   store: Store,
+  journalInfoBar: Renderable
 ): ComponentDefinition {
   let unsubscribers: Array<() => void> = [];
 
-  const journalInfoBar = journalInfoComponent(renderer).renderable;
   const markdown = markdownRendererComponent(renderer).renderable;
 
   const textEditor = new TextareaRenderable(renderer, {
@@ -47,7 +48,6 @@ export function editorComponent(
   textEditor.onContentChange = () => {
     store.dispatch('EDITOR_CONTENT_CHANGED', textEditor.plainText);
   }
-
   const editorBox = Box(
     {
       width: "70%",

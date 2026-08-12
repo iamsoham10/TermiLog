@@ -136,7 +136,7 @@ export function createStore() {
       ...payload: ActionPayloads[T] extends void ? [] : [ActionPayloads[T]]
     ): void {
       const actualPayload = payload[0] as ActionPayloads[T];
-      console.log(`[Store] Dispatching ${action}`, payload);
+      console.log(`[Store] Dispatching ${action}`);
 
       // update the state
       state = updateState(action, actualPayload);
