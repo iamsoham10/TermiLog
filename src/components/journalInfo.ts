@@ -61,11 +61,14 @@ export function journalInfoComponent(renderer: RenderContext, store: Store): Com
 
 
   store.subscribe("JOURNAL_LOADED", (payload) => {
-    const date = payload.createdAt.toLocaleString();
+    const isoString = payload.createdAt;
+    const date = new Date(isoString);
+    const isoStringEdited = payload.updatedAt;
+    const editDate = new Date(isoStringEdited);
     setInfoParam([
       { label: "Mood", info: payload.mood || "-" },
-      { label: "Written", info: date },
-      { label: "Edited", info: payload.updatedAt },
+      { label: "Written", info: date.toLocaleString() },
+      { label: "Edited", info: editDate.toLocaleString() },
     ]);
   });
 
