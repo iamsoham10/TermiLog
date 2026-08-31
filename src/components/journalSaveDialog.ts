@@ -70,6 +70,20 @@ export function journalSaveDialogComponent(
     isInputFocused = true;
   }
 
+  function applyCurrentJournalDefaults(): void {
+    const currentJournal = store.getState().currentJournal;
+    if (!currentJournal) {
+      return;
+    }
+
+    journalNameInput.value = currentJournal.title;
+    const moodIndex = moodOptions.findIndex(
+      (option) => option.value === currentJournal.mood,
+    );
+    currentMoodIndex = moodIndex >= 0 ? moodIndex : 0;
+    moodSelector.selectedIndex = currentMoodIndex;
+  }
+
   function closeDialog() {
     saveDialog.visible = false;
     journalNameInput.blur();
@@ -118,6 +132,7 @@ export function journalSaveDialogComponent(
       store.dispatch("FOCUS_CHANGED", "editor")
     } else {
       console.error("[Dialog] Save failed:", result.message);
+      toast.error(result.message);
     }
   }
 
@@ -276,9 +291,10 @@ export function journalSaveDialogComponent(
       const unsubscribeDialog = store.subscribe("DIALOG_OPENED", () => {
         saveDialog.visible = true;
         isInputFocused = true;
+        resetInput();
+        applyCurrentJournalDefaults();
         journalNameInput.focus();
         moodSelector.blur();
-        resetInput();
       });
 
       unsubscribers = [

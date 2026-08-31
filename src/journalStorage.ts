@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import type { JournalsIndex } from "./types/journal";
-import { writeFile } from "node:fs/promises";
+import { writeFile, rm } from "node:fs/promises";
 import { JOURNAL_INDEX_PATH, TERMILOG_DIR } from "./utils/pathUtils";
 import path from "node:path";
 
@@ -62,6 +62,16 @@ export const storage = {
   // check if file exists or not
   fileExists(path: string): boolean {
     return existsSync(path);
+  },
+
+  async deleteFile(path: string): Promise<void> {
+    try {
+      if (existsSync(path)) {
+        await rm(path);
+      }
+    } catch (err) {
+      throw new Error(`Failed to delete file at ${path}: ${err}`);
+    }
   },
 
   // ensure journal directory exists

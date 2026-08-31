@@ -93,30 +93,49 @@ export function createJournalService(config: JournalServiceConfig) {
       validateContent(content);
       console.log("[JournalService] saving journal:", title);
 
-      // ensure directory exists
+      const trimmedTitle = title.trim();
+      const currentJournal = store.getState().currentJournal;
+      const index = await storage.readIndex();
+      const occupant = index.journals.find((j) => j.title === trimmedTitle);
+      const isUpdatingCurrent =
+        currentJournal !== null &&
+        occupant !== undefined &&
+        occupant.journalId === currentJournal.journalId;
+
+      if (occupant && !isUpdatingCurrent) {
+        throw new Error("A journal with that name already exists");
+      }
+
       storage.ensureDirectorExists();
 
-      // write file to disk
-      const filePath = getJournalPath(title);
+      const filePath = getJournalPath(trimmedTitle);
       await storage.writeFile(filePath, content);
 
-      // find or create new metadata entry
-      const index = await storage.readIndex();
+      const isRename =
+        currentJournal !== null && currentJournal.title !== trimmedTitle;
 
-      const existingIndex = index.journals.findIndex(
-        (j) => j.title === title.trim(),
+      if (isRename) {
+        const oldPath = getJournalPath(currentJournal.title);
+        if (storage.fileExists(oldPath)) {
+          await storage.deleteFile(oldPath);
+        }
+      }
+
+      const existingIndex = index.journals.findIndex((j) =>
+        isRename
+          ? j.journalId === currentJournal?.journalId
+          : j.title === trimmedTitle,
       );
 
       let metadata: JournalMetadata;
 
       if (existingIndex >= 0) {
         const existing = index.journals[existingIndex];
-        metadata = generateMetadata(title, mood, existing?.journalId);
+        metadata = generateMetadata(trimmedTitle, mood, existing?.journalId);
         metadata.createdAt = existing?.createdAt!;
         index.journals[existingIndex] = metadata;
       } else {
-        // create new metadata
-        metadata = generateMetadata(title, mood);
+        metadata = generateMetadata(trimmedTitle, mood);
         index.journals.push(metadata);
       }
 
