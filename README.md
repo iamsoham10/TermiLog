@@ -10,36 +10,37 @@ Terminal journaling TUI built with [OpenTUI](https://github.com/opentui/opentui)
 ## Install & run
 
 ```bash
-bun install
-bun dev
+bun install -g @soham_chitale/termi-log
+
+termilog
 ```
 
 ## Keyboard shortcuts
 
-| Key | Action |
-|-----|--------|
-| `h` | Home |
-| `j` | Journal editor |
+| Key | Action                             |
+| --- | ---------------------------------- |
+| `h` | Home                               |
+| `j` | Journal editor                     |
 | `d` | Dashboard (streak, activity, mood) |
-| `q` | Quit |
-| `/` | Toggle debug console |
+| `q` | Quit                               |
+| `/` | Toggle debug console               |
 
 On the **dashboard**:
 
-| Key | Action |
-|-----|--------|
+| Key | Action                           |
+| --- | -------------------------------- |
 | `w` | Mood chart — this week (Sun–Sat) |
-| `m` | Mood chart — last 30 days |
-| `r` | Refresh dashboard data |
+| `m` | Mood chart — last 30 days        |
+| `r` | Refresh dashboard data           |
 
 ## Where your data lives
 
 Journals are Markdown files; metadata is stored in a local index file.
 
-| Platform | Journal files | Index |
-|----------|---------------|-------|
-| Windows | `%USERPROFILE%\Termilog\*.md` | `%APPDATA%\.termilog\index.json` |
-| Linux | `~/terminilog/*.md` | `~/.config/termlog/index.json` |
+| Platform | Journal files                 | Index                            |
+| -------- | ----------------------------- | -------------------------------- |
+| Windows  | `%USERPROFILE%\Termilog\*.md` | `%APPDATA%\.termilog\index.json` |
+| Linux    | `~/terminilog/*.md`           | `~/.config/termlog/index.json`   |
 
 The app reconciles the index with files on disk at startup. If the journal folder is missing, the index is **not** modified.
 

@@ -1,8 +1,14 @@
 {
-  "name": "termi-log",
-  "module": "src/index.tsx",
+  "name": "@soham_chitale/termi-log",
+  "version": "0.1.0",
   "type": "module",
-  "private": true,
+  "bin": {
+    "termilog": "./bin/termilog.ts"
+  },
+  "files": [
+    "bin/",
+    "src/"
+  ],
   "scripts": {
     "dev": "bun run src/index.ts"
   },
@@ -15,7 +21,6 @@
   "dependencies": {
     "@opentui-ui/dialog": "^0.1.2",
     "@opentui-ui/toast": "^0.0.5",
-    "@opentui/core": "^0.1.77",
-    "mitt": "^3.0.1"
+    "@opentui/core": "^0.1.77"
   }
 }
