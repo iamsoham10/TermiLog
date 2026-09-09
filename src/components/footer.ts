@@ -15,7 +15,14 @@ type ShortcutNode = {
   node: TextRenderable;
 };
 
-export function footerComponent(renderer: RenderContext, store: Store): ComponentDefinition {
+type FooterMode = "home" | "default" | "dashboard";
+
+export function footerComponent(
+  renderer: RenderContext,
+  store: Store,
+  options?: { mode?: FooterMode },
+): ComponentDefinition {
+  const mode = options?.mode ?? "default";
 
   let unsubscribers: Array<() => void> = [];
   let currentChildren: ShortcutNode[] = [];
@@ -65,16 +72,22 @@ export function footerComponent(renderer: RenderContext, store: Store): Componen
         setShortcuts(sidebarShortcuts);
         break;
       default:
-        setShortcuts(defaultShortcuts);
+        setShortcuts(journalUnfocusedShortcuts);
     }
   }
 
-  const defaultShortcuts = [
+  const homeShortcuts = [
     { key: "J", label: "Journal" },
-    { key: "I", label: "Edit" },
+    { key: "D", label: "Dashboard" },
     { key: "Q", label: "Quit" },
+  ];
+
+  const journalUnfocusedShortcuts = [
+    { key: "I", label: "Edit" },
     { key: "Tab", label: "Sidebar" },
     { key: "Ctrl+b", label: "Toggle Sidebar" },
+    { key: "D", label: "Dashboard" },
+    { key: "N", label: "New journal" },
   ];
 
   const editorShortcuts = [
@@ -85,16 +98,39 @@ export function footerComponent(renderer: RenderContext, store: Store): Componen
 
   const sidebarShortcuts = [
     { key: "↑↓", label: "Navigate" },
-    { key: "Enter", label: "Open journal" }
+    { key: "Enter", label: "Open journal" },
+    { key: "Tab", label: "Editor" },
   ];
 
-  setShortcuts(defaultShortcuts);
+  const dashboardShortcuts = [
+    { key: "J", label: "Journal" },
+    { key: "W", label: "Week" },
+    { key: "M", label: "Month" },
+    { key: "R", label: "Refresh" },
+    { key: "Q", label: "Quit" },
+  ];
+
+  setShortcuts(
+    mode === "dashboard"
+      ? dashboardShortcuts
+      : mode === "home"
+        ? homeShortcuts
+        : editorShortcuts,
+  );
 
   return {
     id: "footer",
     renderable: shortcutContainer,
     onEnter: (initialFocusId?: string) => {
       console.log("[Footer] Entered (setting up subscriptions)");
+      if (mode === "home") {
+        setShortcuts(homeShortcuts);
+        return;
+      }
+      if (mode === "dashboard") {
+        setShortcuts(dashboardShortcuts);
+        return;
+      }
       const unsubFocus = store.subscribe("FOCUS_CHANGED", (focusedId) => {
         console.log("[Footer] focus changed to:", focusedId);
         updateShortcutsForFocus(focusedId);

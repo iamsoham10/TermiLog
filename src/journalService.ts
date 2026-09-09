@@ -7,7 +7,9 @@ import type {
 } from "./types/journal.ts";
 import { join } from "node:path";
 import { TERMILOG_DIR } from "./utils/pathUtils.ts";
-import { rm } from "node:fs/promises";
+
+const INVALID_TITLE_CHARS = /[<>:"/\\|?*\x00-\x1f]/;
+
 
 /*
 JournalService - Business Logic Layer
@@ -37,6 +39,12 @@ export function createJournalService(config: JournalServiceConfig) {
     }
     if (trimmedTitle.length < 1 || trimmedTitle.length > 100) {
       throw new Error("Journal title is too small or too big");
+    }
+    if (INVALID_TITLE_CHARS.test(trimmedTitle)) {
+      throw new Error("Journal title contains invalid characters");
+    }
+    if (trimmedTitle === "." || trimmedTitle === "..") {
+      throw new Error("Journal title is not allowed");
     }
     return true;
   }
@@ -114,13 +122,6 @@ export function createJournalService(config: JournalServiceConfig) {
       const isRename =
         currentJournal !== null && currentJournal.title !== trimmedTitle;
 
-      if (isRename) {
-        const oldPath = getJournalPath(currentJournal.title);
-        if (storage.fileExists(oldPath)) {
-          await storage.deleteFile(oldPath);
-        }
-      }
-
       const existingIndex = index.journals.findIndex((j) =>
         isRename
           ? j.journalId === currentJournal?.journalId
@@ -139,8 +140,14 @@ export function createJournalService(config: JournalServiceConfig) {
         index.journals.push(metadata);
       }
 
-      // write index file
       await storage.writeIndex(index);
+
+      if (isRename) {
+        const oldPath = getJournalPath(currentJournal.title);
+        if (storage.fileExists(oldPath)) {
+          await storage.deleteFile(oldPath);
+        }
+      }
 
       // dispath to store - single source of truth
       store.dispatch("JOURNAL_SAVED", metadata);
@@ -196,10 +203,7 @@ export function createJournalService(config: JournalServiceConfig) {
     title: string,
   ): Promise<{ success: true } | { success: false; message: string }> {
     try {
-      const filePath = getJournalPath(title);
-      if (storage.fileExists(filePath)) {
-        await rm(filePath);
-      }
+      validateTitle(title);
 
       const index = await storage.readIndex();
       const filtered = index.journals.filter((j) => j.title !== title);
@@ -207,7 +211,13 @@ export function createJournalService(config: JournalServiceConfig) {
 
       await storage.writeIndex(newIndex);
 
+      const filePath = getJournalPath(title);
+      if (storage.fileExists(filePath)) {
+        await storage.deleteFile(filePath);
+      }
+
       store.dispatch("JOURNAL_DELETED", title);
+      store.dispatch("JOURNALS_RELOADED", filtered);
 
       return { success: true };
     } catch (err) {
@@ -224,7 +234,9 @@ export function createJournalService(config: JournalServiceConfig) {
       const index = await storage.readIndex();
       return index.journals;
     } catch (err) {
-      console.error("[JournalService] list failed:", err);
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      console.error("[JournalService] list failed:", errorMessage);
+      store.dispatch("SAVE_ERROR", errorMessage);
       return [];
     }
   }
@@ -235,12 +247,18 @@ export function createJournalService(config: JournalServiceConfig) {
     return state.journals;
   }
 
+  function createNewJournal(): { success: true } {
+    store.dispatch("JOURNAL_NEW");
+    return { success: true };
+  }
+
   return {
     saveJournal,
     loadJournal,
     deleteJournal,
     listJournals,
     getJournalsFromStore,
+    createNewJournal,
   };
 }
 

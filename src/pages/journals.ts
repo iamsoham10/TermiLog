@@ -88,6 +88,15 @@ export function createJournalPage(
       unsubscribers = [];
     },
     onKeypress: (key) => {
+      const state = store.getState();
+      if (
+        state.focusedComponent === null &&
+        !state.dialogOpen &&
+        key.name === "n"
+      ) {
+        service.createNewJournal();
+        return true;
+      }
       if (key.ctrl && key.name === "b" && !store.getState().dialogOpen) {
         const nextVisible = !store.getState().sidebarVisible;
 

@@ -132,7 +132,6 @@ export function journalSaveDialogComponent(
       store.dispatch("FOCUS_CHANGED", "editor")
     } else {
       console.error("[Dialog] Save failed:", result.message);
-      toast.error(result.message);
     }
   }
 

@@ -8,7 +8,6 @@ import {
   TextareaRenderable,
   type RenderContext,
 } from "@opentui/core";
-import { markdownRendererComponent } from "./markdownRenderer";
 import type { Store } from "../store/store";
 import type { ComponentDefinition } from "../focusManager";
 
@@ -34,7 +33,6 @@ export function editorComponent(
 ): ComponentDefinition {
   let unsubscribers: Array<() => void> = [];
 
-  const markdown = markdownRendererComponent(renderer).renderable;
 
   const textEditor = new TextareaRenderable(renderer, {
     id: "editor-container",
@@ -49,7 +47,7 @@ export function editorComponent(
   }
   const editorBox = Box(
     {
-      width: "70%",
+      width: "100%",
       height: "100%",
       overflow: "hidden",
       paddingTop: 1,
@@ -83,7 +81,6 @@ export function editorComponent(
           flexDirection: "row",
         },
         editorBox,
-        markdown,
       ),
     ),
   ) as BoxRenderable;
@@ -105,6 +102,14 @@ export function editorComponent(
     textEditor.setText(payload.content || "");
     textEditor.gotoBufferEnd();
     store.dispatch("FOCUS_CHANGED", 'editor');
+  });
+
+  store.subscribe("JOURNAL_NEW", () => {
+    console.log("[Editor] new journal, clearing content");
+    clearEditorContent();
+    queueMicrotask(() => textEditor.focus());
+    updateBorderColor(true);
+    store.dispatch("FOCUS_CHANGED", "editor");
   });
 
   return {

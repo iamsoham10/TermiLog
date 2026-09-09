@@ -23,6 +23,7 @@ type ActionType =
   | "DIALOG_CLOSED"
   | "JOURNALS_RELOADED"
   | "SIDEBAR_VISIBILITY_CHANGED"
+  | "JOURNAL_NEW"
 
 type ActionPayloads = {
   JOURNAL_SELECTED: string;
@@ -36,6 +37,7 @@ type ActionPayloads = {
   DIALOG_CLOSED: void;
   JOURNALS_RELOADED: JournalMetadata[];
   SIDEBAR_VISIBILITY_CHANGED: boolean;
+  JOURNAL_NEW: void;
 };
 
 type UnsubscribeFn = () => void;
@@ -118,6 +120,11 @@ export function createStore() {
 
       case "SIDEBAR_VISIBILITY_CHANGED":
         newState.sidebarVisible = payload;
+        break;
+
+      case "JOURNAL_NEW":
+        newState.currentJournal = null;
+        newState.editorContent = "";
         break;
 
       default:

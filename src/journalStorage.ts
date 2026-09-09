@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import type { JournalsIndex } from "./types/journal";
-import { writeFile, rm } from "node:fs/promises";
+import { copyFile, rename, rm, unlink, writeFile } from "node:fs/promises";
 import { JOURNAL_INDEX_PATH, TERMILOG_DIR } from "./utils/pathUtils";
 import path from "node:path";
 
@@ -42,18 +42,26 @@ export const storage = {
     }
   },
 
-  // write journal index file as JSON, throw any errors
+  // write journal index file as JSON via temp file + rename
   async writeIndex(index: JournalsIndex): Promise<void> {
     try {
       const dir = path.dirname(JOURNAL_INDEX_PATH);
       if (!existsSync(dir)) {
         mkdirSync(dir, { recursive: true });
       }
-      await writeFile(
-        JOURNAL_INDEX_PATH,
-        JSON.stringify(index, null, 2),
-        "utf-8",
-      );
+
+      const content = JSON.stringify(index, null, 2);
+      const tempPath = `${JOURNAL_INDEX_PATH}.tmp`;
+      const backupPath = `${JOURNAL_INDEX_PATH}.bak`;
+
+      await writeFile(tempPath, content, "utf-8");
+
+      if (existsSync(JOURNAL_INDEX_PATH)) {
+        await copyFile(JOURNAL_INDEX_PATH, backupPath);
+        await unlink(JOURNAL_INDEX_PATH);
+      }
+
+      await rename(tempPath, JOURNAL_INDEX_PATH);
     } catch (err) {
       throw new Error(`Failed to write index: ${err}`);
     }
@@ -83,4 +91,3 @@ export const storage = {
 };
 
 export type Storage = typeof storage;
-

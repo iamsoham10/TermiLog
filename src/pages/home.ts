@@ -12,7 +12,7 @@ import { footerComponent } from "../components/footer";
 import type { Store } from "../store/store";
 
 export function createHomePage(renderer: RenderContext, store: Store): Page {
-  const footerShortcuts = footerComponent(renderer, store).renderable;
+  const footer = footerComponent(renderer, store, { mode: "home" });
   const content = Box(
     {
       id: "title-container",
@@ -33,7 +33,7 @@ export function createHomePage(renderer: RenderContext, store: Store): Page {
 
   const page = instantiate(
     renderer,
-    BaseLayout(content, footerShortcuts, {
+    BaseLayout(content, footer.renderable, {
       border: true,
       borderStyle: "rounded",
     }),
@@ -42,7 +42,11 @@ export function createHomePage(renderer: RenderContext, store: Store): Page {
   return {
     id: "home",
     renderable: page,
-    onEnter() { },
-    onLeave() { },
+    onEnter() {
+      footer.onEnter?.();
+    },
+    onLeave() {
+      footer.onLeave?.();
+    },
   };
 }

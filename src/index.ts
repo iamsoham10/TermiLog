@@ -1,13 +1,14 @@
 import {
   ConsolePosition,
   createCliRenderer,
+  engine,
 } from "@opentui/core";
 import { Router } from "./router";
 import { createHomePage } from "./pages/home";
 import { createJournalPage } from "./pages/journals";
-import { ToasterRenderable } from "@opentui-ui/toast";
+import { createDashboardPage } from "./pages/dashboard";
+import { ToasterRenderable, toast, EMOJI_ICONS } from "@opentui-ui/toast";
 import { reconcileOnStartup } from "./indexSync";
-import { EMOJI_ICONS } from "@opentui-ui/toast";
 import { createStore } from "./store/store";
 import { createJournalService } from "./journalService";
 import { storage } from "./journalStorage";
@@ -18,7 +19,7 @@ async function main() {
   const renderer = await createCliRenderer({
     exitOnCtrlC: true,
     consoleOptions: {
-      startInDebugMode: true,
+      startInDebugMode: false,
       position: ConsolePosition.BOTTOM,
       sizePercent: 30,
     },
@@ -31,14 +32,23 @@ async function main() {
   const service = createJournalService({ store, storage });
   console.log("[App] Service created");
 
-  await reconcileOnStartup(store);
-  console.log("[App] Index reconciled");
-
   const toaster = new ToasterRenderable(renderer, {
     position: "top-right",
     icons: EMOJI_ICONS,
   });
   renderer.root.add(toaster);
+
+  store.subscribe("SAVE_ERROR", (message) => {
+    toast.error(message);
+  });
+
+  const reconcileResult = await reconcileOnStartup(store);
+  if (!reconcileResult.success) {
+    toast.error(reconcileResult.message);
+  }
+  console.log("[App] Index reconciled");
+
+  engine.attach(renderer);
 
   const router = new Router();
   const pages = [
@@ -49,6 +59,10 @@ async function main() {
     {
       id: "journal",
       create: () => createJournalPage(renderer, store, service),
+    },
+    {
+      id: "dashboard",
+      create: () => createDashboardPage(renderer, store),
     },
   ];
 
@@ -70,6 +84,9 @@ async function main() {
     }
     if (key.name === "j" && activePage?.id !== "journal") {
       router.navigate("journal");
+    }
+    if (key.name === "d" && activePage?.id !== "dashboard") {
+      router.navigate("dashboard");
     }
     if (key.name === "q") {
       renderer.destroy();

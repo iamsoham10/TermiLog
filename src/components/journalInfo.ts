@@ -12,6 +12,12 @@ type InfoParamNode = {
   node: TextRenderable;
 }
 
+const defaultInfoParams: InfoParam[] = [
+  { label: "Mood", info: "-" },
+  { label: "Written", info: "-" },
+  { label: "Edited", info: "-" },
+];
+
 /*
   accept journal metadata as parameter
   handle empty/missing mood or other properties
@@ -72,7 +78,11 @@ export function journalInfoComponent(renderer: RenderContext, store: Store): Com
     ]);
   });
 
-  setInfoParam([{ label: "Mood", info: "-" }, { label: "Written", info: "-" }, { label: "Edited", info: "-" }])
+  store.subscribe("JOURNAL_NEW", () => {
+    setInfoParam(defaultInfoParams);
+  });
+
+  setInfoParam(defaultInfoParams);
 
   return {
     id: "info-bar",

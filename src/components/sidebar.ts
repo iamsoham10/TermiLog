@@ -92,6 +92,7 @@ export function sidebarComponent(
 
     if (!result.success) {
       console.error("[Sidebar] failed to load journal:", result.message);
+      store.dispatch("SAVE_ERROR", result.message);
       return;
     }
   }
