@@ -1,0 +1,52 @@
+---
+const shortcuts = [
+  { key: 'j', label: 'Open journal editor' },
+  { key: 'd', label: 'Open dashboard' },
+  { key: 'Tab', label: 'Focus sidebar' },
+  { key: '↑↓', label: 'Navigate journal list' },
+  { key: 'Enter', label: 'Open selected journal' },
+];
+---
+
+<section id="usage" class="mx-auto max-w-6xl px-6 pb-24">
+  <div class="mb-10 text-center">
+    <h2 class="text-2xl font-bold tracking-tight text-text sm:text-3xl">
+      Usage
+    </h2>
+    <p class="mt-2 text-sm text-muted">
+      One command to start. A few keys to navigate.
+    </p>
+  </div>
+
+  <div class="mx-auto flex max-w-lg flex-col gap-8">
+    <div class="overflow-hidden rounded-lg border border-border bg-surface">
+      <div class="flex items-center gap-2 border-b border-border px-3 py-2">
+        <span class="size-2 rounded-full bg-[#ff5f57]" aria-hidden="true" />
+        <span class="size-2 rounded-full bg-[#febc2e]" aria-hidden="true" />
+        <span class="size-2 rounded-full bg-[#28c840]" aria-hidden="true" />
+      </div>
+      <div class="space-y-3 p-4">
+        <p class="font-mono text-sm">
+          <span class="text-accent">$</span>
+          <span class="text-text"> termilog</span>
+        </p>
+        <p class="text-sm text-muted">Launch the app and open the journal editor</p>
+      </div>
+    </div>
+
+    <div class="divide-y divide-border rounded-lg border border-border bg-surface/40">
+      {
+        shortcuts.map((shortcut) => (
+          <div class="flex items-center justify-between gap-4 px-4 py-3">
+            <kbd
+              class="shrink-0 rounded border border-border bg-surface px-2 py-0.5 font-mono text-sm text-accent"
+            >
+              {shortcut.key}
+            </kbd>
+            <span class="text-right text-sm text-muted">{shortcut.label}</span>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

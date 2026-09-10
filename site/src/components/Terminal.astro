@@ -1,0 +1,35 @@
+---
+interface Props {
+  title?: string;
+}
+
+const { title = 'termilog' } = Astro.props;
+---
+
+<div
+  class="overflow-hidden rounded-xl border border-border bg-surface shadow-2xl shadow-black/40"
+  role="img"
+  aria-label="Terminal mockup showing Termilog installation"
+>
+  <div class="flex items-center gap-2 border-b border-border px-4 py-3">
+    <span class="size-3 rounded-full bg-[#ff5f57]" aria-hidden="true"></span>
+    <span class="size-3 rounded-full bg-[#febc2e]" aria-hidden="true"></span>
+    <span class="size-3 rounded-full bg-[#28c840]" aria-hidden="true"></span>
+    <span class="ml-2 font-mono text-xs text-muted">{title}</span>
+  </div>
+
+  <div class="space-y-2 p-5 font-mono text-sm leading-relaxed">
+    <p>
+      <span class="text-accent">$</span>
+      <span class="text-muted"> bun install -g @soham_chitale/termi-log</span>
+    </p>
+    <p class="text-graph-high">✓ installed termilog@latest</p>
+    <p>
+      <span class="text-accent">$</span>
+      <span class="text-muted"> termilog</span>
+    </p>
+    <p class="text-muted">
+      ▸ Opening journal<span class="inline-block h-4 w-2 translate-y-0.5 bg-accent animate-blink" aria-hidden="true"></span>
+    </p>
+  </div>
+</div>

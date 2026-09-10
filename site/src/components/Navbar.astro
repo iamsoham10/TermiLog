@@ -1,0 +1,49 @@
+---
+import { site } from '../data/site';
+
+const navLinks = [
+  { href: '#features', label: 'Features' },
+  { href: '#usage', label: 'Usage' },
+  { href: '#privacy', label: 'Privacy' },
+];
+---
+
+<header class="sticky top-0 z-50 border-b border-border/60 bg-bg/80 backdrop-blur-md">
+  <nav
+    class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4"
+    aria-label="Main navigation"
+  >
+    <a
+      href="/"
+      class="font-mono text-lg font-medium tracking-tight text-text transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+    >
+      {site.name}
+    </a>
+
+    <div class="flex items-center gap-6">
+      <ul class="hidden items-center gap-6 sm:flex">
+        {
+          navLinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="text-sm text-muted transition-colors hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <a
+        href={site.githubUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="rounded-md border border-border px-3 py-1.5 text-sm text-muted transition-colors hover:border-accent/50 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      >
+        GitHub
+      </a>
+    </div>
+  </nav>
+</header>

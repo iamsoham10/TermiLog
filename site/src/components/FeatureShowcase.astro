@@ -1,0 +1,62 @@
+---
+import ProductFrame from './ProductFrame.astro';
+import { site } from '../data/site';
+
+const rows = [
+  {
+    title: 'Write in flow',
+    description: 'Sidebar navigation and a distraction-free editor.',
+    variant: 'editor' as const,
+    imageSrc: site.screenshots.editor,
+    alt: 'Termilog editor with sidebar',
+    reverse: false,
+  },
+  {
+    title: 'Track your habit',
+    description: 'Streak counter and activity at a glance.',
+    variant: 'dashboard' as const,
+    imageSrc: site.screenshots.dashboard,
+    alt: 'Termilog dashboard with streak and activity graph',
+    reverse: true,
+  },
+  {
+    title: 'See the patterns',
+    description: 'Mood trends over the week.',
+    variant: 'graphs' as const,
+    imageSrc: site.screenshots.graphs,
+    alt: 'Termilog mood graph with emoji labels',
+    reverse: false,
+  },
+];
+---
+<h2 class="mb-10 text-center text-2xl font-bold tracking-tight text-text sm:text-3xl pt-12">
+Features
+</h2>
+
+<section id="features" class="mx-auto max-w-6xl space-y-20 px-6 pb-24">
+  {
+    rows.map((row) => (
+      <div
+        class:list={[
+          'flex flex-col items-center gap-10 lg:gap-16',
+          row.reverse ? 'lg:flex-row-reverse' : 'lg:flex-row',
+        ]}
+      >
+        <div class="w-full lg:w-[55%]">
+          <ProductFrame
+            variant={row.variant}
+            imageSrc={row.imageSrc}
+            alt={row.alt}
+            title={row.variant === 'editor' ? 'termilog — editor' : row.variant === 'dashboard' ? 'termilog — dashboard' : 'termilog — insights'}
+          />
+        </div>
+        <div class="w-full lg:w-[45%] lg:px-4">
+          <h2 class="mb-3 text-2xl font-bold tracking-tight text-text sm:text-3xl">
+            {row.title}
+          </h2>
+          <p class="text-muted">{row.description}</p>
+        </div>
+      </div>
+    ))
+  }
+</section>

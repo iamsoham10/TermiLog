@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import Hero from '../components/Hero.astro';
+import FeatureShowcase from '../components/FeatureShowcase.astro';
+import CapabilityStrip from '../components/CapabilityStrip.astro';
+import UsageSection from '../components/UsageSection.astro';
+import InstallCommand from '../components/InstallCommand.astro';
+import PrivacySection from '../components/PrivacySection.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../data/site';
+---
+
+<BaseLayout title={site.title} description={site.description}>
+  <Navbar />
+
+  <main>
+    <Hero />
+    <FeatureShowcase />
+    <CapabilityStrip />
+    <UsageSection />
+    <PrivacySection />
+
+    <section class="mx-auto max-w-6xl px-6 py-16 text-center">
+      <p class="mb-2 font-mono text-xs uppercase tracking-widest text-muted">
+        Available on
+      </p>
+      <p class="text-lg text-text">
+        Windows <span class="text-muted" aria-hidden="true">·</span> macOS
+        <span class="text-muted" aria-hidden="true">·</span> Linux
+      </p>
+    </section>
+
+    <section class="mx-auto max-w-6xl px-6 pb-24">
+      <div
+        class="rounded-2xl border border-border bg-surface/80 px-6 py-16 text-center sm:px-12"
+      >
+        <h2 class="mb-3 text-3xl font-bold tracking-tight text-text sm:text-4xl">
+          Start journaling in seconds
+        </h2>
+        <p class="mx-auto mb-8 max-w-md text-muted">
+          One command to install. One command to open.
+        </p>
+
+        <div class="mx-auto max-w-lg">
+          <InstallCommand copyId="cta" showNote={false} />
+        </div>
+
+        <a
+          href={site.githubUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="mt-6 inline-block text-sm text-muted transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
+          View source on GitHub →
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>

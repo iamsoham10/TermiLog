@@ -1,0 +1,108 @@
+---
+import { site } from '../data/site';
+
+interface Props {
+  id?: string;
+  showNote?: boolean;
+  copyId?: string;
+}
+
+const { id, showNote = true, copyId = 'install' } = Astro.props;
+---
+
+<div
+  id={id}
+  class="rounded-lg border border-border bg-surface/80 font-mono text-sm"
+  data-install-block={copyId}
+>
+  <div class="flex items-center gap-3 px-4 py-3">
+    <span class="shrink-0 text-accent" aria-hidden="true">$</span>
+    <code class="min-w-0 flex-1 overflow-x-auto text-text" data-install-command>
+      {site.installCommand}
+    </code>
+    <button
+      type="button"
+      data-copy-btn
+      title="Copy"
+      aria-label="Copy install command"
+      class="shrink-0 rounded p-1.5 text-muted transition-colors hover:bg-bg hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+    >
+      <svg
+        data-icon-copy
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="size-4"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.927-.184"
+        />
+      </svg>
+      <svg
+        data-icon-check
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="hidden size-4 text-graph-high"
+        aria-hidden="true"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+      </svg>
+    </button>
+  </div>
+
+  {
+    showNote && (
+      <p class="border-t border-border/60 px-4 py-2 text-xs text-muted">
+        requires{' '}
+        <a
+          href={site.bunUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-muted underline-offset-2 hover:text-accent hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
+          bun
+        </a>
+      </p>
+    )
+  }
+</div>
+
+<script>
+  document.querySelectorAll('[data-copy-btn]').forEach((btn) => {
+    if (btn.dataset.bound) return;
+    btn.dataset.bound = 'true';
+
+    const copyIcon = btn.querySelector('[data-icon-copy]');
+    const checkIcon = btn.querySelector('[data-icon-check]');
+
+    btn.addEventListener('click', async () => {
+      const block = btn.closest('[data-install-block]');
+      const command = block?.querySelector('[data-install-command]');
+      const text = command?.textContent?.trim();
+      if (!text) return;
+
+      try {
+        await navigator.clipboard.writeText(text);
+        copyIcon?.classList.add('hidden');
+        checkIcon?.classList.remove('hidden');
+        btn.setAttribute('title', 'Copied!');
+        setTimeout(() => {
+          copyIcon?.classList.remove('hidden');
+          checkIcon?.classList.add('hidden');
+          btn.setAttribute('title', 'Copy');
+        }, 2000);
+      } catch {
+        btn.setAttribute('title', 'Failed to copy');
+        setTimeout(() => btn.setAttribute('title', 'Copy'), 2000);
+      }
+    });
+  });
+</script>
