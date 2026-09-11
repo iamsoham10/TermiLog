@@ -12,7 +12,7 @@ export const site = {
   ogDescription:
     'Private, keyboard-driven journaling in your terminal. Local-first, no cloud.',
   installCommand: 'bun install -g @soham_chitale/termi-log',
-  githubUrl: 'https://github.com/you/termilog',
+  githubUrl: 'https://github.com/iamsoham10/TermiLog',
   openTuiUrl: 'https://github.com/sst/opentui',
   bunUrl: 'https://bun.sh',
   screenshots: {
